@@ -50,22 +50,20 @@ import net.imglib2.type.Type;
  * This is a node in a {@link MserTree}. The child and parent nodes can be
  * accessed by {@link #getChildren()} and {@link #getParent()}.
  * 
- * @param <T>
- *            value type of the input image.
+ * @param <T> value type of the input image.
  * 
  * @author Tobias Pietzsch
  */
-public final class Mser< T extends Type< T > > implements Component< T, Mser< T > >
-{
+public final class Mser<T extends Type<T>> implements Component<T, Mser<T>> {
 	/**
 	 * child nodes in the {@link MserTree}.
 	 */
-	final ArrayList< Mser< T > > children;
+	final ArrayList<Mser<T>> children;
 
 	/**
 	 * parent node in the {@link MserTree}.
 	 */
-	Mser< T > parent;
+	Mser<T> parent;
 
 	/**
 	 * Threshold value of the connected component.
@@ -92,9 +90,8 @@ public final class Mser< T extends Type< T > > implements Component< T, Mser< T 
 	 */
 	private final double[] cov;
 
-	Mser( final MserEvaluationNode< T > node )
-	{
-		children = new ArrayList< Mser< T > >();
+	Mser(final MserEvaluationNode<T> node) {
+		children = new ArrayList<Mser<T>>();
 		parent = null;
 
 		value = node.value;
@@ -110,8 +107,7 @@ public final class Mser< T extends Type< T > > implements Component< T, Mser< T 
 	 * @return the image threshold that created the extremal region.
 	 */
 	@Override
-	public T value()
-	{
+	public T value() {
 		return value;
 	}
 
@@ -121,8 +117,7 @@ public final class Mser< T extends Type< T > > implements Component< T, Mser< T 
 	 * @return number of pixels in the extremal region.
 	 */
 	@Override
-	public long size()
-	{
+	public long size() {
 		return pixelList.size();
 	}
 
@@ -131,31 +126,28 @@ public final class Mser< T extends Type< T > > implements Component< T, Mser< T 
 	 * 
 	 * @return the MSER score.
 	 */
-	public double score()
-	{
+	public double score() {
 		return score;
 	}
 
 	/**
-	 * Mean of the pixel positions in the region. This is a position vector (x,
-	 * y, z, ...)
+	 * Mean of the pixel positions in the region. This is a position vector (x, y,
+	 * z, ...)
 	 * 
 	 * @return mean vector.
 	 */
-	public double[] mean()
-	{
+	public double[] mean() {
 		return mean;
 	}
 
 	/**
 	 * Covariance of the pixel positions in the region. This is a vector of the
-	 * independent elements of the covariance matrix (xx, xy, xz, ..., yy, yz,
-	 * ..., zz, ...)
+	 * independent elements of the covariance matrix (xx, xy, xz, ..., yy, yz, ...,
+	 * zz, ...)
 	 * 
 	 * @return vector of covariance elements.
 	 */
-	public double[] cov()
-	{
+	public double[] cov() {
 		return cov;
 	}
 
@@ -166,8 +158,7 @@ public final class Mser< T extends Type< T > > implements Component< T, Mser< T 
 	 * @return iterator over locations.
 	 */
 	@Override
-	public Iterator< Localizable > iterator()
-	{
+	public Iterator<Localizable> iterator() {
 		return pixelList.iterator();
 	}
 
@@ -177,8 +168,7 @@ public final class Mser< T extends Type< T > > implements Component< T, Mser< T 
 	 * @return the children of this node in the {@link MserTree}.
 	 */
 	@Override
-	public ArrayList< Mser< T > > getChildren()
-	{
+	public ArrayList<Mser<T>> getChildren() {
 		return children;
 	}
 
@@ -188,8 +178,7 @@ public final class Mser< T extends Type< T > > implements Component< T, Mser< T 
 	 * @return the parent of this node in the {@link MserTree}.
 	 */
 	@Override
-	public Mser< T > getParent()
-	{
+	public Mser<T> getParent() {
 		return parent;
 	}
 }

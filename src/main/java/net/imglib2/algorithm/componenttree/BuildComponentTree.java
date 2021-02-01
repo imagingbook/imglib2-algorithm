@@ -50,6 +50,8 @@ import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.type.Type;
 import net.imglib2.type.logic.BitType;
+import net.imglib2.type.numeric.IntegerType;
+import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 
 /**
@@ -423,59 +425,41 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 	 * @param value
 	 */
 	private void processStack(final T value) {
-		while (true) {
+		boolean done = false;
+		do {
 			// process component on top of stack
-			final C component = componentStack.pop();
+			C component = componentStack.pop();
 			componentOutput.emit(component);
 
 			// get level of second component on stack
-			final C secondComponent = componentStack.peek();
-			try {
-				//final int c = comparator.compare(value, secondComponent.getValue());
-				int val1 = getIntValue(value);
-				int val2 = getIntValue(secondComponent.getValue());
-				//if (c < 0) {
-				if (val1 < val2) {
-					component.setValue(value);
-					componentStack.push(component);
-				} else {
-					secondComponent.merge(component);
-					if (val1 > val2) { //if (c > 0)
-						continue;
-					}
-				}
-				return;
-			} catch (final NullPointerException e) {
-				IJ.log("******* NullPointerException **********");
+			C secondComponent = componentStack.peek();
+
+			//final int c = comparator.compare(value, secondComponent.getValue());
+			int val1 = getIntValue(value);
+			int val2 = getIntValue(secondComponent.getValue());
+			//if (c < 0) {
+			if (val1 < val2) {
+				component.setValue(value);
 				componentStack.push(component);
-				return;
+				done = true;
+			} 
+			else {
+				secondComponent.merge(component);
+				if (val1 == val2) { //if (c > 0)
+					done = true;
+				}
 			}
-		}
+		} while (!done);
 	}
 	
 	
 	// ---------------- Wilbur testing -----------------------------------------------
 	
 	int getIntValue(T x) {
-		return new Integer(x.toString());
+		IntegerType<?> it = (IntegerType<?>) x;
+		return it.getInteger();
+		//return new Integer(x.toString());
 	}
 	
-	
-	public static void main(String[] args) {
-		//final RandomAccess<UnsignedByteType> current = new RandomAccess<UnsignedByteType>();
 
-//		final RandomAccess<UnsignedByteType> neighbor;
-//		Neighborhood neighborhood = new Neighborhood(new long[] {15,13});
-		
-//		System.out.println(current);
-		
-//		while (neighborhood.hasNext()) {
-//			neighborhood.next(null, null, null);
-//			System.out.println(neighborhood.getNextNeighborIndex());
-//		}
-		
-//		Comparator<Integer> cmp = new Comparator<>();
-//		System.out.println(.compare(10, 3));
-		
-	}
 }

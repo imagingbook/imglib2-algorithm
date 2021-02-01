@@ -61,119 +61,106 @@ import net.imglib2.util.Util;
  * (Currently, we assume that the input image is a <em>zero-min</em> interval.)
  * </p>
  *
- * @param <T>
- *            value type of the input image.
+ * @param <T> value type of the input image.
  *
  * @author Tobias Pietzsch
  */
-public final class PixelListComponentTree< T extends Type< T > > implements ComponentTree< PixelListComponent< T > >, Iterable< PixelListComponent< T > >, PartialComponent.Handler< PixelListPartialComponent< T > >
-{
+public final class PixelListComponentTree<T extends Type<T>> implements ComponentTree<PixelListComponent<T>>,
+		Iterable<PixelListComponent<T>>, PartialComponent.Handler<PixelListPartialComponent<T>> {
 	/**
 	 * Build a component tree from an input image. Calls
 	 * {@link #buildComponentTree(RandomAccessibleInterval, RealType, ImgFactory, boolean)}
-	 * using an {@link ArrayImgFactory} or {@link CellImgFactory} depending on
-	 * input image size.
+	 * using an {@link ArrayImgFactory} or {@link CellImgFactory} depending on input
+	 * image size.
 	 *
-	 * @param input
-	 *            the input image.
-	 * @param type
-	 *            a variable of the input image type.
-	 * @param darkToBright
-	 *            whether to apply thresholds from dark to bright (true) or
-	 *            bright to dark (false)
+	 * @param input        the input image.
+	 * @param type         a variable of the input image type.
+	 * @param darkToBright whether to apply thresholds from dark to bright (true) or
+	 *                     bright to dark (false)
 	 * @return component tree of the image.
 	 */
-	public static < T extends RealType< T > > PixelListComponentTree< T > buildComponentTree( final RandomAccessibleInterval< T > input, final T type, final boolean darkToBright )
-	{
-		final ImgFactory< LongType > factory = Util.getArrayOrCellImgFactory( input, new LongType() );
-		return buildComponentTree( input, type, factory, darkToBright );
+	public static <T extends RealType<T>> PixelListComponentTree<T> buildComponentTree(
+			final RandomAccessibleInterval<T> input, final T type, final boolean darkToBright) {
+		final ImgFactory<LongType> factory = Util.getArrayOrCellImgFactory(input, new LongType());
+		return buildComponentTree(input, type, factory, darkToBright);
 	}
 
 	/**
 	 * Build a component tree from an input image.
 	 *
-	 * @param input
-	 *            the input image.
-	 * @param type
-	 *            a variable of the input image type.
-	 * @param imgFactory
-	 *            used for creating the {@link PixelList} image (see
-	 *            {@link PixelListPartialComponentGenerator}).
-	 * @param darkToBright
-	 *            whether to apply thresholds from dark to bright (true) or
-	 *            bright to dark (false)
+	 * @param input        the input image.
+	 * @param type         a variable of the input image type.
+	 * @param imgFactory   used for creating the {@link PixelList} image (see
+	 *                     {@link PixelListPartialComponentGenerator}).
+	 * @param darkToBright whether to apply thresholds from dark to bright (true) or
+	 *                     bright to dark (false)
 	 * @return component tree of the image.
 	 */
-	public static < T extends RealType< T > > PixelListComponentTree< T > buildComponentTree( final RandomAccessibleInterval< T > input, final T type, final ImgFactory< LongType > imgFactory, final boolean darkToBright )
-	{
+	public static <T extends RealType<T>> PixelListComponentTree<T> buildComponentTree(
+			final RandomAccessibleInterval<T> input, final T type, final ImgFactory<LongType> imgFactory,
+			final boolean darkToBright) {
 		final T max = type.createVariable();
-		max.setReal( darkToBright ? type.getMaxValue() : type.getMinValue() );
-		final PixelListPartialComponentGenerator< T > generator = new PixelListPartialComponentGenerator< T >( max, input, imgFactory );
-		final PixelListComponentTree< T > tree = new PixelListComponentTree< T >();
-		BuildComponentTree.buildComponentTree( input, generator, tree, darkToBright );
+		max.setReal(darkToBright ? type.getMaxValue() : type.getMinValue());
+		final PixelListPartialComponentGenerator<T> generator = new PixelListPartialComponentGenerator<T>(max, input,
+				imgFactory);
+		final PixelListComponentTree<T> tree = new PixelListComponentTree<T>();
+		BuildComponentTree.buildComponentTree(input, generator, tree, darkToBright);
 		return tree;
 	}
 
 	/**
 	 * Build a component tree from an input image. Calls
 	 * {@link #buildComponentTree(RandomAccessibleInterval, Type, Comparator, ImgFactory)}
-	 * using an {@link ArrayImgFactory} or {@link CellImgFactory} depending on
-	 * input image size.
+	 * using an {@link ArrayImgFactory} or {@link CellImgFactory} depending on input
+	 * image size.
 	 *
-	 * @param input
-	 *            the input image.
-	 * @param maxValue
-	 *            a value (e.g., grey-level) greater than any occurring in the
-	 *            input image.
-	 * @param comparator
-	 *            determines ordering of threshold values.
+	 * @param input      the input image.
+	 * @param maxValue   a value (e.g., grey-level) greater than any occurring in
+	 *                   the input image.
+	 * @param comparator determines ordering of threshold values.
 	 * @return component tree of the image.
 	 */
-	public static < T extends Type< T > > PixelListComponentTree< T > buildComponentTree( final RandomAccessibleInterval< T > input, final T maxValue, final Comparator< T > comparator )
-	{
-		final ImgFactory< LongType > factory = Util.getArrayOrCellImgFactory( input, new LongType() );
-		return buildComponentTree( input, maxValue, comparator, factory );
+	public static <T extends Type<T>> PixelListComponentTree<T> buildComponentTree(
+			final RandomAccessibleInterval<T> input, final T maxValue, final Comparator<T> comparator) {
+		final ImgFactory<LongType> factory = Util.getArrayOrCellImgFactory(input, new LongType());
+		return buildComponentTree(input, maxValue, comparator, factory);
 	}
 
 	/**
 	 * Build a component tree from an input image.
 	 *
-	 * @param input
-	 *            the input image.
-	 * @param maxValue
-	 *            a value (e.g., grey-level) greater than any occurring in the
-	 *            input image.
-	 * @param comparator
-	 *            determines ordering of threshold values.
-	 * @param imgFactory
-	 *            used for creating the {@link PixelList} image
-	 *            {@link PixelListPartialComponentGenerator}.
+	 * @param input      the input image.
+	 * @param maxValue   a value (e.g., grey-level) greater than any occurring in
+	 *                   the input image.
+	 * @param comparator determines ordering of threshold values.
+	 * @param imgFactory used for creating the {@link PixelList} image
+	 *                   {@link PixelListPartialComponentGenerator}.
 	 * @return component tree of the image.
 	 */
-	public static < T extends Type< T > > PixelListComponentTree< T > buildComponentTree( final RandomAccessibleInterval< T > input, final T maxValue, final Comparator< T > comparator, final ImgFactory< LongType > imgFactory )
-	{
-		final PixelListPartialComponentGenerator< T > generator = new PixelListPartialComponentGenerator< T >( maxValue, input, imgFactory );
-		final PixelListComponentTree< T > tree = new PixelListComponentTree< T >();
-		BuildComponentTree.buildComponentTree( input, generator, tree, comparator );
+	public static <T extends Type<T>> PixelListComponentTree<T> buildComponentTree(
+			final RandomAccessibleInterval<T> input, final T maxValue, final Comparator<T> comparator,
+			final ImgFactory<LongType> imgFactory) {
+		final PixelListPartialComponentGenerator<T> generator = new PixelListPartialComponentGenerator<T>(maxValue,
+				input, imgFactory);
+		final PixelListComponentTree<T> tree = new PixelListComponentTree<T>();
+		BuildComponentTree.buildComponentTree(input, generator, tree, comparator);
 		return tree;
 	}
 
-	private PixelListComponent< T > root;
+	private PixelListComponent<T> root;
 
-	private final ArrayList< PixelListComponent< T > > nodes;
+	private final ArrayList<PixelListComponent<T>> nodes;
 
-	private PixelListComponentTree()
-	{
+	private PixelListComponentTree() {
 		root = null;
-		nodes = new ArrayList< PixelListComponent< T > >();
+		nodes = new ArrayList<PixelListComponent<T>>();
 	}
 
 	@Override
-	public void emit( final PixelListPartialComponent< T > partialComponent )
-	{
-		final PixelListComponent< T > component = new PixelListComponent< T >( partialComponent );
+	public void emit(final PixelListPartialComponent<T> partialComponent) {
+		final PixelListComponent<T> component = new PixelListComponent<T>(partialComponent);
 		root = component;
-		nodes.add( component );
+		nodes.add(component);
 	}
 
 	/**
@@ -182,8 +169,7 @@ public final class PixelListComponentTree< T extends Type< T > > implements Comp
 	 * @return iterator over all connected components in the tree.
 	 */
 	@Override
-	public Iterator< PixelListComponent< T > > iterator()
-	{
+	public Iterator<PixelListComponent<T>> iterator() {
 		return nodes.iterator();
 	}
 
@@ -193,8 +179,7 @@ public final class PixelListComponentTree< T extends Type< T > > implements Comp
 	 * @return root component.
 	 */
 	@Override
-	public PixelListComponent< T > root()
-	{
+	public PixelListComponent<T> root() {
 		return root;
 	}
 
@@ -204,8 +189,7 @@ public final class PixelListComponentTree< T extends Type< T > > implements Comp
 	 * @return a singleton set containing the root component.
 	 */
 	@Override
-	public Set< PixelListComponent< T > > roots()
-	{
-		return Collections.singleton( root );
+	public Set<PixelListComponent<T>> roots() {
+		return Collections.singleton(root);
 	}
 }

@@ -78,6 +78,7 @@ public class MSER_imglib2_WB {
 				//IJ.log(k + ": " + Arrays.toString(mean));
 				IJ.log(String.format("%d: value=%d size=%d score=%.2f childs=%d", 
 						k, mser.value().getInteger(), mser.size(), mser.score(), mser.getChildren().size()));
+				double cov[] = mser.cov();
 			}
 			
 //			ip.setColor(Color.green);
