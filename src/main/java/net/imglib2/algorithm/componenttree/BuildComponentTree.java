@@ -38,6 +38,7 @@ import java.util.ArrayDeque;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
+import ij.IJ;
 import net.imglib2.Localizable;
 import net.imglib2.Point;
 import net.imglib2.Positionable;
@@ -402,7 +403,8 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 			}
 
 			final BoundaryPixel p = boundaryPixels.poll();
-			if (comparator.compare(p.get(), currentLevel) != 0) {
+			//if (comparator.compare(p.get(), currentLevel) != 0) {
+			if (getIntValue(p.get()) !=  getIntValue(currentLevel)) {
 				// step 7
 				processStack(p.get());
 			}
@@ -429,17 +431,22 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 			// get level of second component on stack
 			final C secondComponent = componentStack.peek();
 			try {
-				final int c = comparator.compare(value, secondComponent.getValue());
-				if (c < 0) {
+				//final int c = comparator.compare(value, secondComponent.getValue());
+				int val1 = getIntValue(value);
+				int val2 = getIntValue(secondComponent.getValue());
+				//if (c < 0) {
+				if (val1 < val2) {
 					component.setValue(value);
 					componentStack.push(component);
 				} else {
 					secondComponent.merge(component);
-					if (c > 0)
+					if (val1 > val2) { //if (c > 0)
 						continue;
+					}
 				}
 				return;
 			} catch (final NullPointerException e) {
+				IJ.log("******* NullPointerException **********");
 				componentStack.push(component);
 				return;
 			}
