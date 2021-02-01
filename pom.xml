@@ -266,6 +266,31 @@ Jean-Yves Tinevez and Michael Zinsmaier.</license.copyrightOwners>
 			<artifactId>jmh-generator-annprocess</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
+		
+		<!-- Wilbur: additional dependencies -->
+		
+		<dependency>
+			<groupId>net.imglib2</groupId>
+			<artifactId>imglib2-ij</artifactId>
+		</dependency>
+		
+		<!-- ImageJ dependencies -->
+		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>imagej-common</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>ij</artifactId>
+		</dependency>
+		
+		<!-- SCIFIO dependencies -->
+		<dependency>
+			<groupId>io.scif</groupId>
+			<artifactId>scifio</artifactId>
+		</dependency>
+		
 	</dependencies>
 
 	<build>
