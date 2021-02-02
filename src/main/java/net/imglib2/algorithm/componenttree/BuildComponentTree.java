@@ -195,27 +195,27 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 		 * Assumes that prior to any call to next() neighbor was a the same position as
 		 * current, i.e. neighbor position is only modified incrementally.
 		 * 
-		 * @param current
-		 * @param neighbor
+		 * @param currentPos
+		 * @param neighborPos
 		 * @return false if the neighbor position is out of bounds, true otherwise.
 		 */
-		public boolean next(final Localizable current, final Positionable neighbor, final Positionable neighbor2) {
+		public boolean next(final Localizable currentPos, final Positionable neighborPos, final Positionable visitedPos) {
 			final int d = n / 2;
 			final boolean bck = (n == 2 * d); // n % 2 == 0
 			++n;
 			if (bck) {
 				if (d > 0) {
-					neighbor.setPosition(current.getLongPosition(d - 1), d - 1);
-					neighbor2.setPosition(current.getLongPosition(d - 1), d - 1);
+					neighborPos.setPosition(currentPos.getLongPosition(d - 1), d - 1);
+					visitedPos.setPosition(currentPos.getLongPosition(d - 1), d - 1);
 				}
-				final long dpos = current.getLongPosition(d) - 1;
-				neighbor.setPosition(dpos, d);
-				neighbor2.setPosition(dpos, d);
+				final long dpos = currentPos.getLongPosition(d) - 1;
+				neighborPos.setPosition(dpos, d);
+				visitedPos.setPosition(dpos, d);
 				return dpos >= 0;
 			} else {
-				final long dpos = current.getLongPosition(d) + 1;
-				neighbor.setPosition(dpos, d);
-				neighbor2.setPosition(dpos, d);
+				final long dpos = currentPos.getLongPosition(d) + 1;
+				neighborPos.setPosition(dpos, d);
+				visitedPos.setPosition(dpos, d);
 				return dpos < dimensions[d];
 			}
 		}
@@ -273,7 +273,7 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 	private final PartialComponent.Handler<C> componentOutput;
 	private final Neighborhood neighborhood;
 	private final RandomAccessible<BitType> visited;
-	private final RandomAccess<BitType> visitedRandomAccess;
+	private final RandomAccess<BitType> visitedPos;
 	private final PriorityQueue<BoundaryPixel> boundaryPixels;
 	private final ArrayDeque<C> componentStack;
 	private final Comparator<T> comparator;
@@ -301,7 +301,7 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 		final ImgFactory<BitType> imgFactory = new ArrayImgFactory<>(new BitType());
 		
 		visited = imgFactory.create(dimensions);				// creates the visited (bit) map
-		visitedRandomAccess = visited.randomAccess();
+		visitedPos = visited.randomAccess();
 
 		neighborhood = new Neighborhood(dimensions);
 		boundaryPixels = new PriorityQueue<BoundaryPixel>();
@@ -327,7 +327,7 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 		System.out.println("current = " + current.positionAsPoint().toString());
 		System.out.println("neighbor = " + neighbor.positionAsPoint().toString());
 		while (neighborhood.hasNext()) {
-			boolean in = neighborhood.next(current, neighbor, visitedRandomAccess);
+			boolean in = neighborhood.next(current, neighbor, visitedPos);
 			//System.out.println("   " + in + " current = " + current.positionAsPoint().toString());
 			System.out.println("   " + in + " neighbor = " + neighbor.positionAsPoint().toString());
 		}
@@ -344,49 +344,53 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 		
 		System.out.println("**** running ****");
 		
-		final RandomAccess<T> current = input.randomAccess();	// current position
-		final RandomAccess<T> neighbor = input.randomAccess();	// neighbor position
+		final RandomAccess<T> currentPos = input.randomAccess();	// current position
+		final RandomAccess<T> neighborPos = input.randomAccess();	// neighbor position
+		
+		//IJ.log("boundaryPixels.size() = " + boundaryPixels.size());
+		boundaryPixels.clear();
 
-		input.min(current);							// sets current position to (0,0)
-		neighbor.setPosition(current);				// neighbor = current
-		visitedRandomAccess.setPosition(current);	// visitedRandomAccess = current
+		input.min(currentPos);						// sets current position to (0,0)
+		neighborPos.setPosition(currentPos);		// neighbor = current
+		visitedPos.setPosition(currentPos);			// visitedRandomAccess = current
 
-		final T currentLevel = current.get().createVariable();
-		final T neighborLevel = current.get().createVariable();
+		final T currentLevel = currentPos.get().createVariable();
+		final T neighborLevel = currentPos.get().createVariable();
+		
+		
 
 		// Note that step numbers in the comments below refer to steps in the
 		// Nister & Stewenius paper.
 
 		// step 2
-		visitedRandomAccess.get().set(true);	// mark start pixel as visited
-		currentLevel.set(current.get());		// currentLevel = I(current)
+		visitedPos.get().set(true);	// mark start pixel as visited
+		currentLevel.set(currentPos.get());		// currentLevel = I(currentPos)
 
 		// step 3
 		componentStack.push(componentGenerator.createComponent(currentLevel));	// push initial component
 
 		// step 4
-		while (true) {
+		boolean done = false;
+		while (!done) {
 			while (neighborhood.hasNext()) {
 //				if (!neighborhood.next(current, neighbor, visitedRandomAccess)) {
 //					continue;
 //				}
-				if (neighborhood.next(current, neighbor, visitedRandomAccess) && !visitedRandomAccess.get().get()) {
+				if (neighborhood.next(currentPos, neighborPos, visitedPos) && !visitedPos.get().get()) {
 				//if (!visitedRandomAccess.get().get()) {
 					// actually we could visit( neighbor ); here.
 					// however, because wasVisited() already set the
-					// visitedRandomAccess to the correct position, this is faster:
-					visitedRandomAccess.get().set(true);
-
-					neighborLevel.set(neighbor.get());		// neighborLevel = I(neighbor)
+					// visitedPos to the correct position, this is faster:
+					visitedPos.get().set(true);			// set visited true
+					neighborLevel.set(neighborPos.get());		// neighborLevel = I(neighbor)
 					
 					//if (comparator.compare(neighborLevel, currentLevel) >= 0) {
 					if (getIntValue(neighborLevel) >= getIntValue(currentLevel)) {
-						boundaryPixels.add(createBoundaryPixel(neighbor, neighborLevel, 0));	// push neighbor (0 = none of its neighbors has been processed!) 
+						boundaryPixels.add(createBoundaryPixel(neighborPos, neighborLevel, 0));	// push neighbor (0 = none of its neighbors has been processed!) 
 					} else {
-						boundaryPixels.add(createBoundaryPixel(current, currentLevel, neighborhood.getNextNeighborIndex()));
-						current.setPosition(neighbor);		// current = neighbor
+						boundaryPixels.add(createBoundaryPixel(currentPos, currentLevel, neighborhood.getNextNeighborIndex()));
+						currentPos.setPosition(neighborPos);		// current = neighbor
 						currentLevel.set(neighborLevel);	// currentLevel = I(neighbor)
-
 						// go to 3, i.e.:
 						componentStack.push(componentGenerator.createComponent(currentLevel));
 						neighborhood.reset();
@@ -395,61 +399,83 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 			}
 
 			// step 5
-			final C component = componentStack.peek();
-			component.addPosition(current);
+			C component = componentStack.peek();
+			component.addPosition(currentPos);
 
 			// step 6
 			if (boundaryPixels.isEmpty()) {
 				processStack(currentLevel);
-				return;
+				done = true; //break; //return;
 			}
-
-			final BoundaryPixel p = boundaryPixels.poll();
-			//if (comparator.compare(p.get(), currentLevel) != 0) {
-			if (getIntValue(p.get()) !=  getIntValue(currentLevel)) {
-				// step 7
-				processStack(p.get());
+			else {
+				BoundaryPixel p = boundaryPixels.poll();
+				//if (comparator.compare(p.get(), currentLevel) != 0) {
+				if (getIntValue(p.get()) !=  getIntValue(currentLevel)) {
+					// step 7
+					processStack(p.get());
+				}
+				currentPos.setPosition(p);						// current <- nextBoundaryPosition
+				neighborPos.setPosition(currentPos);				// neighbor <- current
+				visitedPos.setPosition(currentPos);	// visit current
+				currentLevel.set(p.get());
+				neighborhood.setNextNeighborIndex(p.getNextNeighborIndex());
+				freeBoundaryPixel(p);
 			}
-			current.setPosition(p);
-			neighbor.setPosition(current);
-			visitedRandomAccess.setPosition(current);
-			currentLevel.set(p.get());
-			neighborhood.setNextNeighborIndex(p.getNextNeighborIndex());
-			freeBoundaryPixel(p);
 		}
+		
+		validateAllVisited(input);	// wilbur
+		
+	}
+	
+	private void validateAllVisited(final RandomAccessibleInterval<T> input) {
+		// wilbur: check if all positions were visited
+		final long[] dimensions = new long[input.numDimensions()];
+		input.dimensions(dimensions);
+		int width = (int) dimensions[0];
+		int height = (int) dimensions[1];
+		visitedPos.setPosition(new int[] {0,0});
+		int cnt = 0;
+		for (int u = 0; u < width; u++) {
+			for (int v = 0; v < height; v++) {
+				if (!visitedPos.setPositionAndGet(u, v).get()) {
+					cnt++;
+				}
+			}
+		}
+		IJ.log("non-visited positions: " + cnt);
 	}
 
 	/**
 	 * This is called whenever the current value is raised.
 	 * 
-	 * @param value
+	 * @param newLevel
 	 */
-	private void processStack(final T value) {
+	private void processStack(final T newLevel) {
 		boolean done = false;
-		do {
+		while (!done) {
 			// process component on top of stack
-			C component = componentStack.pop();
-			componentOutput.emit(component);
+			C component1 = componentStack.pop();
+			componentOutput.emit(component1);
 
 			// get level of second component on stack
-			C secondComponent = componentStack.peek();
+			C component2 = componentStack.peek();
 
 			//final int c = comparator.compare(value, secondComponent.getValue());
-			int val1 = getIntValue(value);
-			int val2 = getIntValue(secondComponent.getValue());
+			int level1 = getIntValue(newLevel);
+			int level2 = getIntValue(component2.getValue());
 			//if (c < 0) {
-			if (val1 < val2) {
-				component.setValue(value);
-				componentStack.push(component);
+			if (level1 < level2) {
+				component1.setValue(newLevel);
+				componentStack.push(component1);
 				done = true;
 			} 
 			else {
-				secondComponent.merge(component);
-				if (val1 == val2) { //if (c > 0)
+				component2.merge(component1);
+				if (level1 == level2) { //if (c > 0)
 					done = true;
 				}
 			}
-		} while (!done);
+		}
 	}
 	
 	

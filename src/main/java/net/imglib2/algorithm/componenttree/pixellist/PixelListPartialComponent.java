@@ -44,13 +44,11 @@ import net.imglib2.type.Type;
  * Implementation of {@link PartialComponent} that stores a list of associated
  * pixels in a {@link PixelList}.
  *
- * @param <T>
- *            value type of the input image.
+ * @param <T> value type of the input image.
  *
  * @author Tobias Pietzsch
  */
-final class PixelListPartialComponent< T extends Type< T > > implements PartialComponent< T, PixelListPartialComponent< T > >
-{
+final class PixelListPartialComponent<T extends Type<T>> implements PartialComponent<T, PixelListPartialComponent<T>> {
 	/**
 	 * Threshold value of the connected component.
 	 */
@@ -62,72 +60,60 @@ final class PixelListPartialComponent< T extends Type< T > > implements PartialC
 	final PixelList pixelList;
 
 	/**
-	 * A list of {@link PixelListPartialComponent} merged into this one since it
-	 * was last emitted. (For building up component tree.)
+	 * A list of {@link PixelListPartialComponent} merged into this one since it was
+	 * last emitted. (For building up component tree.)
 	 */
-	final ArrayList< PixelListPartialComponent< T > > children;
+	final ArrayList<PixelListPartialComponent<T>> children;
 
 	/**
 	 * The PixelListComponent assigned to this {@link PixelListPartialComponent}
 	 * when it was last emitted. (For building up component tree.)
 	 */
-	PixelListComponent< T > emittedComponent;
+	PixelListComponent<T> emittedComponent;
 
 	/**
 	 * Create new empty component.
 	 *
-	 * @param value
-	 *            (initial) threshold value {@see #getValue()}.
-	 * @param generator
-	 *            the {@link PixelListPartialComponentGenerator#linkedList} is
-	 *            used to store the {@link #pixelList}.
+	 * @param value     (initial) threshold value {@see #getValue()}.
+	 * @param generator the {@link PixelListPartialComponentGenerator#linkedList} is
+	 *                  used to store the {@link #pixelList}.
 	 */
-	PixelListPartialComponent( final T value, final PixelListPartialComponentGenerator< T > generator )
-	{
-		pixelList = new PixelList( generator.linkedList.randomAccess(), generator.dimensions );
+	PixelListPartialComponent(final T value, final PixelListPartialComponentGenerator<T> generator) {
+		pixelList = new PixelList(generator.linkedList.randomAccess(), generator.dimensions);
 		this.value = value.copy();
-		children = new ArrayList< PixelListPartialComponent< T > >();
+		children = new ArrayList<PixelListPartialComponent<T>>();
 		emittedComponent = null;
 	}
 
 	@Override
-	public void addPosition( final Localizable position )
-	{
-		pixelList.addPosition( position );
+	public void addPosition(final Localizable position) {
+		pixelList.addPosition(position);
 	}
 
 	@Override
-	public T getValue()
-	{
+	public T getValue() {
 		return value;
 	}
 
 	@Override
-	public void setValue( final T value )
-	{
-		this.value.set( value );
+	public void setValue(final T value) {
+		this.value.set(value);
 	}
 
 	@Override
-	public void merge( final PixelListPartialComponent< T > component )
-	{
-		pixelList.merge( component.pixelList );
-		children.add( component );
+	public void merge(final PixelListPartialComponent<T> component) {
+		this.pixelList.merge(component.pixelList);
+		this.children.add(component);
 	}
 
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		String s = "{" + value.toString() + " : ";
 		boolean first = true;
-		for ( final Localizable l : pixelList )
-		{
-			if ( first )
-			{
+		for (final Localizable l : pixelList) {
+			if (first) {
 				first = false;
-			}
-			else
-			{
+			} else {
 				s += ", ";
 			}
 			s += l.toString();
