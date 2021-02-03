@@ -24,8 +24,8 @@ public class MSER_imglib2_WB {
 	public <T extends NumericType<T> & NativeType<T>> MSER_imglib2_WB() {
 		// define the file to open
 //		File file = new File( "DrosophilaWing.tif" );
-//		File file = new File("D://images/boats-tiny.png");
-		File file = new File("D://images/boats.png");
+		File file = new File("D://images/boats-tiny.png");
+//		File file = new File("D://images/boats.png");
 
 		// open a file with ImageJ
 		final ImagePlus imp = new Opener().openImage(file.getAbsolutePath());

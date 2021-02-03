@@ -35,6 +35,7 @@
 package net.imglib2.algorithm.componenttree;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
 
@@ -307,30 +308,12 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 		boundaryPixels = new PriorityQueue<BoundaryPixel>();
 
 		componentStack = new ArrayDeque<C>();
-		componentStack.push(componentGenerator.createMaxComponent());
+		componentStack.push(componentGenerator.createMaxComponent());	// push empty component with value 255
 
 		this.comparator = comparator;
 
 		//foo(input);
 		run(input);
-	}
-	
-	// wilbur
-	private void foo(final RandomAccessibleInterval<T> input) {
-		System.out.println("**** foo ****");
-		final RandomAccess<T> current = input.randomAccess();	// current position
-		final RandomAccess<T> neighbor = input.randomAccess();	// neighbor position
-		
-		current.setPositionAndGet(3, 7);
-		neighbor.setPosition(current);
-		
-		System.out.println("current = " + current.positionAsPoint().toString());
-		System.out.println("neighbor = " + neighbor.positionAsPoint().toString());
-		while (neighborhood.hasNext()) {
-			boolean in = neighborhood.next(current, neighbor, visitedPos);
-			//System.out.println("   " + in + " current = " + current.positionAsPoint().toString());
-			System.out.println("   " + in + " neighbor = " + neighbor.positionAsPoint().toString());
-		}
 	}
 	
 
@@ -343,6 +326,7 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 	private void run(final RandomAccessibleInterval<T> input) {
 		
 		System.out.println("**** running ****");
+		
 		
 		final RandomAccess<T> currentPos = input.randomAccess();	// current position
 		final RandomAccess<T> neighborPos = input.randomAccess();	// neighbor position
@@ -370,6 +354,7 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 		componentStack.push(componentGenerator.createComponent(currentLevel));	// push initial component
 
 		// step 4
+		listComponentStack();
 		boolean done = false;
 		while (!done) {
 			while (neighborhood.hasNext()) {
@@ -424,26 +409,9 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 		}
 		
 		validateAllVisited(input);	// wilbur
-		
 	}
 	
-	private void validateAllVisited(final RandomAccessibleInterval<T> input) {
-		// wilbur: check if all positions were visited
-		final long[] dimensions = new long[input.numDimensions()];
-		input.dimensions(dimensions);
-		int width = (int) dimensions[0];
-		int height = (int) dimensions[1];
-		visitedPos.setPosition(new int[] {0,0});
-		int cnt = 0;
-		for (int u = 0; u < width; u++) {
-			for (int v = 0; v < height; v++) {
-				if (!visitedPos.setPositionAndGet(u, v).get()) {
-					cnt++;
-				}
-			}
-		}
-		IJ.log("non-visited positions: " + cnt);
-	}
+	private int processStackCtr = 0;
 
 	/**
 	 * This is called whenever the current value is raised.
@@ -451,6 +419,7 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 	 * @param newLevel
 	 */
 	private void processStack(final T newLevel) {
+		IJ.log((processStackCtr++) + " processStack START newLevel=" + newLevel + " componentStack = " + listComponentStack());
 		boolean done = false;
 		while (!done) {
 			// process component on top of stack
@@ -476,10 +445,60 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 				}
 			}
 		}
+		IJ.log("           END  newLevel=" + newLevel + " topStackLevel=" + componentStack.peek().getValue());
 	}
 	
 	
 	// ---------------- Wilbur testing -----------------------------------------------
+	
+	// wilbur
+	private void foo(final RandomAccessibleInterval<T> input) {
+		System.out.println("**** foo ****");
+		final RandomAccess<T> current = input.randomAccess();	// current position
+		final RandomAccess<T> neighbor = input.randomAccess();	// neighbor position
+		
+		current.setPositionAndGet(3, 7);
+		neighbor.setPosition(current);
+		
+		System.out.println("current = " + current.positionAsPoint().toString());
+		System.out.println("neighbor = " + neighbor.positionAsPoint().toString());
+		while (neighborhood.hasNext()) {
+			boolean in = neighborhood.next(current, neighbor, visitedPos);
+			//System.out.println("   " + in + " current = " + current.positionAsPoint().toString());
+			System.out.println("   " + in + " neighbor = " + neighbor.positionAsPoint().toString());
+		}
+	}
+	
+	// wilbur
+	private String listComponentStack() {
+		int n = componentStack.size();
+		int[] levels = new int[n];
+		
+		int i = 0;
+		for (C component : componentStack) {
+			levels[i] = getIntValue(component.getValue());
+			i++;
+		}
+		return Arrays.toString(levels);
+	}
+	
+	private void validateAllVisited(final RandomAccessibleInterval<T> input) {
+		// wilbur: check if all positions were visited
+		final long[] dimensions = new long[input.numDimensions()];
+		input.dimensions(dimensions);
+		int width = (int) dimensions[0];
+		int height = (int) dimensions[1];
+		visitedPos.setPosition(new int[] {0,0});
+		int cnt = 0;
+		for (int u = 0; u < width; u++) {
+			for (int v = 0; v < height; v++) {
+				if (!visitedPos.setPositionAndGet(u, v).get()) {
+					cnt++;
+				}
+			}
+		}
+		IJ.log("non-visited positions: " + cnt);
+	}
 	
 	int getIntValue(T x) {
 		IntegerType<?> it = (IntegerType<?>) x;
