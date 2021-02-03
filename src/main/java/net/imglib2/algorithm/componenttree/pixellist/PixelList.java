@@ -126,20 +126,16 @@ public final class PixelList implements Iterable< Localizable >
 	/**
 	 * Append another {@link PixelList} to this one.
 	 */
-	public void merge( final PixelList l )
-	{
-		if ( size == 0 )
-		{
+	public void merge(final PixelList l) {
+		if (this.size == 0) {
 			headIndex = l.headIndex;
-			for ( int i = 0; i < tailPos.length; ++i )
-				tailPos[ i ] = l.tailPos[ i ];
-		}
-		else
-		{
-			locationsAccess.setPosition( tailPos );
-			locationsAccess.get().set( l.headIndex );
-			for ( int i = 0; i < tailPos.length; ++i )
-				tailPos[ i ] = l.tailPos[ i ];
+			for (int i = 0; i < tailPos.length; ++i)
+				tailPos[i] = l.tailPos[i];
+		} else {
+			locationsAccess.setPosition(tailPos);
+			locationsAccess.get().set(l.headIndex);
+			for (int i = 0; i < tailPos.length; ++i)
+				tailPos[i] = l.tailPos[i];
 		}
 		size += l.size;
 	}

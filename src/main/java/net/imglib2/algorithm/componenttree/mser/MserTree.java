@@ -98,97 +98,81 @@ import net.imglib2.util.Util;
  * @author Tobias Pietzsch
  */
 //@formatter:on
-public final class MserTree< T extends Type< T > > implements ComponentForest< Mser< T > >, Iterable< Mser< T > >, PartialComponent.Handler< MserPartialComponent< T > >
-{
+public final class MserTree<T extends Type<T>>
+		implements ComponentForest<Mser<T>>, Iterable<Mser<T>>, PartialComponent.Handler<MserPartialComponent<T>> {
 	/**
 	 * Build a MSER tree from an input image. Calls
 	 * {@link #buildMserTree(RandomAccessibleInterval, RealType, long, long, double, double, ImgFactory, boolean)}
-	 * using an {@link ArrayImgFactory} or {@link CellImgFactory} depending on
-	 * input image size.
+	 * using an {@link ArrayImgFactory} or {@link CellImgFactory} depending on input
+	 * image size.
 	 * 
-	 * @param input
-	 *            the input image.
-	 * @param delta
-	 *            delta for computing instability score.
-	 * @param minSize
-	 *            minimum size (in pixels) of accepted MSER.
-	 * @param maxSize
-	 *            maximum size (in pixels) of accepted MSER.
-	 * @param maxVar
-	 *            maximum instability score of accepted MSER.
-	 * @param minDiversity
-	 *            minimal diversity of adjacent accepted MSER.
-	 * @param darkToBright
-	 *            whether to apply thresholds from dark to bright (true) or
-	 *            bright to dark (false)
+	 * @param input        the input image.
+	 * @param delta        delta for computing instability score.
+	 * @param minSize      minimum size (in pixels) of accepted MSER.
+	 * @param maxSize      maximum size (in pixels) of accepted MSER.
+	 * @param maxVar       maximum instability score of accepted MSER.
+	 * @param minDiversity minimal diversity of adjacent accepted MSER.
+	 * @param darkToBright whether to apply thresholds from dark to bright (true) or
+	 *                     bright to dark (false)
 	 * @return MSER tree of the image.
 	 */
-	public static < T extends RealType< T > > MserTree< T > buildMserTree( final RandomAccessibleInterval< T > input, final double delta, final long minSize, final long maxSize, final double maxVar, final double minDiversity, final boolean darkToBright )
-	{
-		return buildMserTree( input, MserTree.getDeltaVariable( input, delta ), minSize, maxSize, maxVar, minDiversity, darkToBright );
+	public static <T extends RealType<T>> MserTree<T> buildMserTree(final RandomAccessibleInterval<T> input,
+			final double delta, final long minSize, final long maxSize, final double maxVar, final double minDiversity,
+			final boolean darkToBright) {
+		return buildMserTree(input, MserTree.getDeltaVariable(input, delta), minSize, maxSize, maxVar, minDiversity,
+				darkToBright);
 	}
 
 	/**
 	 * Build a MSER tree from an input image. Calls
 	 * {@link #buildMserTree(RandomAccessibleInterval, RealType, long, long, double, double, ImgFactory, boolean)}
-	 * using an {@link ArrayImgFactory} or {@link CellImgFactory} depending on
-	 * input image size.
+	 * using an {@link ArrayImgFactory} or {@link CellImgFactory} depending on input
+	 * image size.
 	 * 
-	 * @param input
-	 *            the input image.
-	 * @param delta
-	 *            delta for computing instability score.
-	 * @param minSize
-	 *            minimum size (in pixels) of accepted MSER.
-	 * @param maxSize
-	 *            maximum size (in pixels) of accepted MSER.
-	 * @param maxVar
-	 *            maximum instability score of accepted MSER.
-	 * @param minDiversity
-	 *            minimal diversity of adjacent accepted MSER.
-	 * @param darkToBright
-	 *            whether to apply thresholds from dark to bright (true) or
-	 *            bright to dark (false)
+	 * @param input        the input image.
+	 * @param delta        delta for computing instability score.
+	 * @param minSize      minimum size (in pixels) of accepted MSER.
+	 * @param maxSize      maximum size (in pixels) of accepted MSER.
+	 * @param maxVar       maximum instability score of accepted MSER.
+	 * @param minDiversity minimal diversity of adjacent accepted MSER.
+	 * @param darkToBright whether to apply thresholds from dark to bright (true) or
+	 *                     bright to dark (false)
 	 * @return MSER tree of the image.
 	 */
-	public static < T extends RealType< T > > MserTree< T > buildMserTree( final RandomAccessibleInterval< T > input, final T delta, final long minSize, final long maxSize, final double maxVar, final double minDiversity, final boolean darkToBright )
-	{
-		final ImgFactory< LongType > factory = Util.getArrayOrCellImgFactory( input, new LongType() );
-		return buildMserTree( input, delta, minSize, maxSize, maxVar, minDiversity, factory, darkToBright );
+	public static <T extends RealType<T>> MserTree<T> buildMserTree(final RandomAccessibleInterval<T> input,
+			final T delta, final long minSize, final long maxSize, final double maxVar, final double minDiversity,
+			final boolean darkToBright) {
+		final ImgFactory<LongType> factory = Util.getArrayOrCellImgFactory(input, new LongType());
+		return buildMserTree(input, delta, minSize, maxSize, maxVar, minDiversity, factory, darkToBright);
 	}
 
 	/**
 	 * Build a MSER tree from an input image.
 	 * 
-	 * @param input
-	 *            the input image.
-	 * @param delta
-	 *            delta for computing instability score.
-	 * @param minSize
-	 *            minimum size (in pixels) of accepted MSER.
-	 * @param maxSize
-	 *            maximum size (in pixels) of accepted MSER.
-	 * @param maxVar
-	 *            maximum instability score of accepted MSER.
-	 * @param minDiversity
-	 *            minimal diversity of adjacent accepted MSER.
-	 * @param imgFactory
-	 *            used for creating the {@link PixelList} image
-	 * @param darkToBright
-	 *            whether to apply thresholds from dark to bright (true) or
-	 *            bright to dark (false)
+	 * @param input        the input image.
+	 * @param delta        delta for computing instability score.
+	 * @param minSize      minimum size (in pixels) of accepted MSER.
+	 * @param maxSize      maximum size (in pixels) of accepted MSER.
+	 * @param maxVar       maximum instability score of accepted MSER.
+	 * @param minDiversity minimal diversity of adjacent accepted MSER.
+	 * @param imgFactory   used for creating the {@link PixelList} image
+	 * @param darkToBright whether to apply thresholds from dark to bright (true) or
+	 *                     bright to dark (false)
 	 * @return MSER tree of the image.
 	 * @see MserPartialComponentGenerator
 	 */
-	public static < T extends RealType< T > > MserTree< T > buildMserTree( final RandomAccessibleInterval< T > input, final T delta, final long minSize, final long maxSize, final double maxVar, final double minDiversity, final ImgFactory< LongType > imgFactory, final boolean darkToBright )
-	{
+	public static <T extends RealType<T>> MserTree<T> buildMserTree(final RandomAccessibleInterval<T> input,
+			final T delta, final long minSize, final long maxSize, final double maxVar, final double minDiversity,
+			final ImgFactory<LongType> imgFactory, final boolean darkToBright) {
 		final T max = delta.createVariable();
-		max.setReal( darkToBright ? delta.getMaxValue() : delta.getMinValue() );
-		final MserPartialComponentGenerator< T > generator = new MserPartialComponentGenerator< T >( max, input, imgFactory );
-		final Comparator< T > comparator = darkToBright ? new BuildComponentTree.DarkToBright< T >() : new BuildComponentTree.BrightToDark< T >();
-		final ComputeDelta< T > computeDelta = darkToBright ? new ComputeDeltaDarkToBright< T >( delta ) : new ComputeDeltaBrightToDark< T >( delta );
-		final MserTree< T > tree = new MserTree< T >( comparator, computeDelta, minSize, maxSize, maxVar, minDiversity );
-		BuildComponentTree.buildComponentTree( input, generator, tree, comparator );
+		max.setReal(darkToBright ? delta.getMaxValue() : delta.getMinValue());
+		final MserPartialComponentGenerator<T> generator = new MserPartialComponentGenerator<T>(max, input, imgFactory);
+		final Comparator<T> comparator = darkToBright ? new BuildComponentTree.DarkToBright<T>()
+				: new BuildComponentTree.BrightToDark<T>();
+		final ComputeDelta<T> computeDelta = darkToBright ? new ComputeDeltaDarkToBright<T>(delta)
+				: new ComputeDeltaBrightToDark<T>(delta);
+		final MserTree<T> tree = new MserTree<T>(comparator, computeDelta, minSize, maxSize, maxVar, minDiversity);
+		BuildComponentTree.buildComponentTree(input, generator, tree, comparator);
 		tree.pruneDuplicates();
 		return tree;
 	}
@@ -196,88 +180,76 @@ public final class MserTree< T extends Type< T > > implements ComponentForest< M
 	/**
 	 * Build a MSER tree from an input image. Calls
 	 * {@link #buildMserTree(RandomAccessibleInterval, ComputeDelta, long, long, double, double, ImgFactory, Type, Comparator)}
-	 * using an {@link ArrayImgFactory} or {@link CellImgFactory} depending on
-	 * input image size.
+	 * using an {@link ArrayImgFactory} or {@link CellImgFactory} depending on input
+	 * image size.
 	 * 
-	 * @param input
-	 *            the input image.
-	 * @param computeDelta
-	 *            to compute (value - delta).
-	 * @param minSize
-	 *            minimum size (in pixels) of accepted MSER.
-	 * @param maxSize
-	 *            maximum size (in pixels) of accepted MSER.
-	 * @param maxVar
-	 *            maximum instability score of accepted MSER.
-	 * @param minDiversity
-	 *            minimal diversity of adjacent accepted MSER.
-	 * @param maxValue
-	 *            a value (e.g., grey-level) greater than any occurring in the
-	 *            input image.
-	 * @param comparator
-	 *            determines ordering of threshold values.
+	 * @param input        the input image.
+	 * @param computeDelta to compute (value - delta).
+	 * @param minSize      minimum size (in pixels) of accepted MSER.
+	 * @param maxSize      maximum size (in pixels) of accepted MSER.
+	 * @param maxVar       maximum instability score of accepted MSER.
+	 * @param minDiversity minimal diversity of adjacent accepted MSER.
+	 * @param maxValue     a value (e.g., grey-level) greater than any occurring in
+	 *                     the input image.
+	 * @param comparator   determines ordering of threshold values.
 	 * @return MSER tree of the image.
 	 */
-	public static < T extends Type< T > > MserTree< T > buildMserTree( final RandomAccessibleInterval< T > input, final ComputeDelta< T > computeDelta, final long minSize, final long maxSize, final double maxVar, final double minDiversity, final T maxValue, final Comparator< T > comparator )
-	{
-		final ImgFactory< LongType > factory = Util.getArrayOrCellImgFactory( input, new LongType() );
-		return buildMserTree( input, computeDelta, minSize, maxSize, maxVar, minDiversity, factory, maxValue, comparator );
+	public static <T extends Type<T>> MserTree<T> buildMserTree(final RandomAccessibleInterval<T> input,
+			final ComputeDelta<T> computeDelta, final long minSize, final long maxSize, final double maxVar,
+			final double minDiversity, final T maxValue, final Comparator<T> comparator) {
+		final ImgFactory<LongType> factory = Util.getArrayOrCellImgFactory(input, new LongType());
+		return buildMserTree(input, computeDelta, minSize, maxSize, maxVar, minDiversity, factory, maxValue,
+				comparator);
 	}
 
 	/**
 	 * Build a MSER tree from an input image.
 	 * 
-	 * @param input
-	 *            the input image.
-	 * @param computeDelta
-	 *            to compute (value - delta).
-	 * @param minSize
-	 *            minimum size (in pixels) of accepted MSER.
-	 * @param maxSize
-	 *            maximum size (in pixels) of accepted MSER.
-	 * @param maxVar
-	 *            maximum instability score of accepted MSER.
-	 * @param minDiversity
-	 *            minimal diversity of adjacent accepted MSER.
-	 * @param imgFactory
-	 *            used for creating the {@link PixelList} image
-	 * @param maxValue
-	 *            a value (e.g., grey-level) greater than any occurring in the
-	 *            input image.
-	 * @param comparator
-	 *            determines ordering of threshold values.
+	 * @param input        the input image.
+	 * @param computeDelta to compute (value - delta).
+	 * @param minSize      minimum size (in pixels) of accepted MSER.
+	 * @param maxSize      maximum size (in pixels) of accepted MSER.
+	 * @param maxVar       maximum instability score of accepted MSER.
+	 * @param minDiversity minimal diversity of adjacent accepted MSER.
+	 * @param imgFactory   used for creating the {@link PixelList} image
+	 * @param maxValue     a value (e.g., grey-level) greater than any occurring in
+	 *                     the input image.
+	 * @param comparator   determines ordering of threshold values.
 	 * @return MSER tree of the image.
 	 * @see MserPartialComponentGenerator
 	 */
-	public static < T extends Type< T > > MserTree< T > buildMserTree( final RandomAccessibleInterval< T > input, final ComputeDelta< T > computeDelta, final long minSize, final long maxSize, final double maxVar, final double minDiversity, final ImgFactory< LongType > imgFactory, final T maxValue, final Comparator< T > comparator )
-	{
-		final MserPartialComponentGenerator< T > generator = new MserPartialComponentGenerator< T >( maxValue, input, imgFactory );
-		final MserTree< T > tree = new MserTree< T >( comparator, computeDelta, minSize, maxSize, maxVar, minDiversity );
-		BuildComponentTree.buildComponentTree( input, generator, tree, comparator );
+	public static <T extends Type<T>> MserTree<T> buildMserTree(final RandomAccessibleInterval<T> input,
+			final ComputeDelta<T> computeDelta, final long minSize, final long maxSize, final double maxVar,
+			final double minDiversity, final ImgFactory<LongType> imgFactory, final T maxValue,
+			final Comparator<T> comparator) {
+		final MserPartialComponentGenerator<T> generator = new MserPartialComponentGenerator<T>(maxValue, input,
+				imgFactory);
+		final MserTree<T> tree = new MserTree<T>(comparator, computeDelta, minSize, maxSize, maxVar, minDiversity);
+		BuildComponentTree.buildComponentTree(input, generator, tree, comparator);
 		tree.pruneDuplicates();
 		return tree;
 	}
 
 	/**
-	 * Create a variable of type T with value delta by copying and setting a
-	 * value from the input {@link RandomAccessibleInterval}.
+	 * Create a variable of type T with value delta by copying and setting a value
+	 * from the input {@link RandomAccessibleInterval}.
 	 */
-	private static < T extends RealType< T > > T getDeltaVariable( final RandomAccessibleInterval< T > input, final double delta )
-	{
-		final RandomAccess< T > a = input.randomAccess();
-		input.min( a );
+	private static <T extends RealType<T>> T getDeltaVariable(final RandomAccessibleInterval<T> input,
+			final double delta) {
+		final RandomAccess<T> a = input.randomAccess();
+		input.min(a);
 		final T deltaT = a.get().createVariable();
-		deltaT.setReal( delta );
+		deltaT.setReal(delta);
 		return deltaT;
 	}
 
-	private final HashSet< Mser< T > > roots;
+	private final HashSet<Mser<T>> roots;
 
-	private final ArrayList< Mser< T > > nodes;
+	private final ArrayList<Mser<T>> nodes;
 
-	private final Comparator< T > comparator;
+	private final Comparator<T> comparator;
 
-	private final ComputeDelta< T > delta;
+	private final ComputeDelta<T> delta;
 
 	/**
 	 * Minimum size (in pixels) of accepted MSER.
@@ -308,10 +280,10 @@ public final class MserTree< T extends Type< T > > implements ComponentForest< M
 
 	private static final int pruneAfterNMinima = 1000;
 
-	private MserTree( final Comparator< T > comparator, final ComputeDelta< T > delta, final long minSize, final long maxSize, final double maxVar, final double minDiversity )
-	{
-		roots = new HashSet< Mser< T > >();
-		nodes = new ArrayList< Mser< T > >();
+	private MserTree(final Comparator<T> comparator, final ComputeDelta<T> delta, final long minSize,
+			final long maxSize, final double maxVar, final double minDiversity) {
+		roots = new HashSet<Mser<T>>();
+		nodes = new ArrayList<Mser<T>>();
 		this.comparator = comparator;
 		this.delta = delta;
 		this.minSize = minSize;
@@ -322,72 +294,62 @@ public final class MserTree< T extends Type< T > > implements ComponentForest< M
 	}
 
 	/**
-	 * Remove from the tree candidates which are too similar to their parent.
-	 * Let <em>A</em>, <em>B</em> be a region and its parent. Then <em>A</em> is
+	 * Remove from the tree candidates which are too similar to their parent. Let
+	 * <em>A</em>, <em>B</em> be a region and its parent. Then <em>A</em> is
 	 * discarded if |B - A| / |B| <= minDiversity.
 	 */
-	private void pruneDuplicates()
-	{
+	private void pruneDuplicates() {
 		nodes.clear();
-		for ( final Mser< T > mser : roots )
-			pruneChildren( mser );
-		nodes.addAll( roots );
+		for (final Mser<T> mser : roots) {
+			pruneChildren(mser);
+		}
+		nodes.addAll(roots);
 	}
 
-	private void pruneChildren( final Mser< T > mser )
-	{
-		final ArrayList< Mser< T > > validChildren = new ArrayList< Mser< T > >();
-		for ( int i = 0; i < mser.children.size(); ++i )
-		{
-			final Mser< T > m = mser.children.get( i );
-			final double div = ( mser.size() - m.size() ) / ( double ) mser.size();
-			if ( div > minDiversity )
-			{
-				validChildren.add( m );
-				pruneChildren( m );
-			}
-			else
-			{
-				mser.children.addAll( m.children );
-				for ( final Mser< T > m2 : m.children )
+	private void pruneChildren(final Mser<T> mser) {
+		final ArrayList<Mser<T>> validChildren = new ArrayList<Mser<T>>();
+		for (int i = 0; i < mser.children.size(); ++i) {
+			final Mser<T> m = mser.children.get(i);
+			final double div = (mser.size() - m.size()) / (double) mser.size();
+			if (div > minDiversity) {
+				validChildren.add(m);
+				pruneChildren(m);
+			} else {
+				mser.children.addAll(m.children);
+				for (final Mser<T> m2 : m.children)
 					m2.parent = mser;
 			}
 		}
 		mser.children.clear();
-		mser.children.addAll( validChildren );
-		nodes.addAll( validChildren );
+		mser.children.addAll(validChildren);
+		nodes.addAll(validChildren);
 	}
 
 	@Override
-	public void emit( final MserPartialComponent< T > component )
-	{
-		new MserEvaluationNode< T >( component, comparator, delta, this );
+	public void emit(final MserPartialComponent<T> component) {
+		new MserEvaluationNode<T>(component, comparator, delta, this);
 		component.children.clear();
 	}
 
 	/**
-	 * Called when a local minimal {@link MserEvaluationNode} (a MSER candidate)
-	 * is found.
+	 * Called when a local minimal {@link MserEvaluationNode} (a MSER candidate) is
+	 * found.
 	 * 
-	 * @param node
-	 *            MSER candidate.
+	 * @param node MSER candidate.
 	 */
-	void foundNewMinimum( final MserEvaluationNode< T > node )
-	{
-		if ( node.size >= minSize && node.size <= maxSize && node.score <= maxVar )
-		{
-			final Mser< T > mser = new Mser< T >( node );
-			for ( final Mser< T > m : node.mserThisOrChildren )
-				mser.children.add( m );
+	void foundNewMinimum(final MserEvaluationNode<T> node) {
+		if (node.size >= minSize && node.size <= maxSize && node.score <= maxVar) {
+			final Mser<T> mser = new Mser<T>(node);
+			for (final Mser<T> m : node.mserThisOrChildren)
+				mser.children.add(m);
 			node.mserThisOrChildren.clear();
-			node.mserThisOrChildren.add( mser );
+			node.mserThisOrChildren.add(mser);
 
-			for ( final Mser< T > m : mser.children )
-				roots.remove( m );
-			roots.add( mser );
-			nodes.add( mser );
-			if ( ++minimaFoundSinceLastPrune == pruneAfterNMinima )
-			{
+			for (final Mser<T> m : mser.children)
+				roots.remove(m);
+			roots.add(mser);
+			nodes.add(mser);
+			if (++minimaFoundSinceLastPrune == pruneAfterNMinima) {
 				minimaFoundSinceLastPrune = 0;
 				pruneDuplicates();
 			}
@@ -399,8 +361,7 @@ public final class MserTree< T extends Type< T > > implements ComponentForest< M
 	 * 
 	 * @return number of detected MSERs.
 	 */
-	public int size()
-	{
+	public int size() {
 		return nodes.size();
 	}
 
@@ -410,8 +371,7 @@ public final class MserTree< T extends Type< T > > implements ComponentForest< M
 	 * @return iterator over all MSERss in the tree.
 	 */
 	@Override
-	public Iterator< Mser< T > > iterator()
-	{
+	public Iterator<Mser<T>> iterator() {
 		return nodes.iterator();
 	}
 
@@ -421,8 +381,7 @@ public final class MserTree< T extends Type< T > > implements ComponentForest< M
 	 * @return set of roots.
 	 */
 	@Override
-	public HashSet< Mser< T > > roots()
-	{
+	public HashSet<Mser<T>> roots() {
 		return roots;
 	}
 }

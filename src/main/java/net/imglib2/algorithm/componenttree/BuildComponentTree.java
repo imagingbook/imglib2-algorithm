@@ -46,6 +46,8 @@ import net.imglib2.Positionable;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessible;
 import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.algorithm.componenttree.mser.MserPartialComponent;
+import net.imglib2.algorithm.componenttree.pixellist.PixelListComponent;
 import net.imglib2.algorithm.componenttree.pixellist.PixelListComponentTree;
 import net.imglib2.img.ImgFactory;
 import net.imglib2.img.array.ArrayImgFactory;
@@ -95,8 +97,10 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 	 * @param comparator         determines ordering of threshold values.
 	 */
 	public static <T extends Type<T>, C extends PartialComponent<T, C>> void buildComponentTree(
-			final RandomAccessibleInterval<T> input, final PartialComponent.Generator<T, C> componentGenerator,
-			final PartialComponent.Handler<C> componentHandler, final Comparator<T> comparator) {
+			final RandomAccessibleInterval<T> input, 
+			final PartialComponent.Generator<T, C> componentGenerator,
+			final PartialComponent.Handler<C> componentHandler, 
+			final Comparator<T> comparator) {
 		new BuildComponentTree<T, C>(input, componentGenerator, componentHandler, comparator);
 	}
 
@@ -290,7 +294,8 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 	 */
 	private BuildComponentTree(final RandomAccessibleInterval<T> input,
 			final PartialComponent.Generator<T, C> componentGenerator,
-			final PartialComponent.Handler<C> componentOutput, final Comparator<T> comparator) {
+			final PartialComponent.Handler<C> componentOutput, 
+			final Comparator<T> comparator) {
 
 		reusableBoundaryPixels = new ArrayDeque<BoundaryPixel>();
 		this.componentGenerator = componentGenerator;
@@ -309,7 +314,12 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 
 		componentStack = new ArrayDeque<C>();
 		componentStack.push(componentGenerator.createMaxComponent());	// push empty component with value 255
+		
+//		componentStack.peek().setValue((T) (new UnsignedByteType(256))); // wilbur: this does NOT work, BUG!!
+//		componentStack.peek().setValue((T) (new UnsignedByteType(255))); // wilbur
 
+		IJ.log("initial component stack: " + componentStack.peek().getValue());
+		
 		this.comparator = comparator;
 
 		//foo(input);
@@ -340,8 +350,6 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 
 		final T currentLevel = currentPos.get().createVariable();
 		final T neighborLevel = currentPos.get().createVariable();
-		
-		
 
 		// Note that step numbers in the comments below refer to steps in the
 		// Nister & Stewenius paper.
@@ -419,15 +427,24 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 	 * @param newLevel
 	 */
 	private void processStack(final T newLevel) {
+		
 		IJ.log((processStackCtr++) + " processStack START newLevel=" + newLevel + " componentStack = " + listComponentStack());
+		if (getIntValue(newLevel) == 0 || getIntValue(newLevel) == 255) {
+			IJ.log("************************************************");
+		}
 		boolean done = false;
 		while (!done) {
 			// process component on top of stack
 			C component1 = componentStack.pop();
 			componentOutput.emit(component1);
+			IJ.log("   +++ emitting component=" + component1.getValue() + " size=" +
+					((MserPartialComponent< T >)component1).size());
 
 			// get level of second component on stack
 			C component2 = componentStack.peek();
+			if (component2 == null) {
+				throw new RuntimeException("empty stack - something odd happened");
+			}
 
 			//final int c = comparator.compare(value, secondComponent.getValue());
 			int level1 = getIntValue(newLevel);
@@ -473,13 +490,16 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 	private String listComponentStack() {
 		int n = componentStack.size();
 		int[] levels = new int[n];
+		int[] sizes = new int[n];
 		
 		int i = 0;
 		for (C component : componentStack) {
-			levels[i] = getIntValue(component.getValue());
+			MserPartialComponent< T > mser = (MserPartialComponent< T >) component;
+			levels[i] = getIntValue(mser.getValue());
+			sizes[i] = (int) mser.size();
 			i++;
 		}
-		return Arrays.toString(levels);
+		return "levels="+Arrays.toString(levels) + " sizes="+Arrays.toString(sizes);
 	}
 	
 	private void validateAllVisited(final RandomAccessibleInterval<T> input) {

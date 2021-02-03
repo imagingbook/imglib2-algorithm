@@ -53,7 +53,7 @@ import net.imglib2.type.Type;
  *
  * @author Tobias Pietzsch
  */
-final class MserPartialComponent< T extends Type< T > > implements PartialComponent< T, MserPartialComponent< T > >
+public final class MserPartialComponent< T extends Type< T > > implements PartialComponent< T, MserPartialComponent< T > >
 {
 	/**
 	 * Threshold value of the connected component.
@@ -178,7 +178,7 @@ final class MserPartialComponent< T extends Type< T > > implements PartialCompon
 	 *
 	 * @return number of pixels in the component.
 	 */
-	long size()
+	public long size()
 	{
 		return pixelList.size();
 	}

@@ -125,8 +125,7 @@ final class MserEvaluationNode<T extends Type<T>> {
 	 */
 	final ArrayList<Mser<T>> mserThisOrChildren;
 
-	MserEvaluationNode(final MserPartialComponent<T> component, final Comparator<T> comparator,
-			final ComputeDelta<T> delta, final MserTree<T> tree) {
+	MserEvaluationNode(final MserPartialComponent<T> component, final Comparator<T> comparator, final ComputeDelta<T> delta, final MserTree<T> tree) {
 		value = component.getValue().copy();
 		pixelList = new PixelList(component.pixelList);
 		size = pixelList.size();
