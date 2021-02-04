@@ -37,6 +37,7 @@ package net.imglib2.algorithm.componenttree.mser;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -104,6 +105,8 @@ import net.imglib2.util.Util;
 //@formatter:on
 public final class MserTree<T extends Type<T>>
 		implements ComponentForest<Mser<T>>, Iterable<Mser<T>>, PartialComponent.Handler<MserPartialComponent<T>> {
+	
+	
 	/**
 	 * Build a MSER tree from an input image. Calls
 	 * {@link #buildMserTree(RandomAccessibleInterval, RealType, long, long, double, double, ImgFactory, boolean)}
@@ -328,9 +331,10 @@ public final class MserTree<T extends Type<T>>
 
 	@Override
 	public void emit(final MserPartialComponent<T> component) {
-		IJ.log("    -- emit() in " + this.getClass().getSimpleName());
+		//IJ.log("    -- MserTree.emit() " + component.ID);
 		new MserEvaluationNode<T>(component, comparator, delta, this);
 		component.children.clear();
+		IJ.log("    -- MserTree.emit(): roots=" + listRootIds());
 	}
 
 	/**
@@ -388,6 +392,16 @@ public final class MserTree<T extends Type<T>>
 	}
 	
 	// wilbur added ------------------------------------------------------------------
+	
+	public String listRootIds() {
+		int[] ids = new int[roots.size()];
+		int i = 0;
+		for (Mser<T> mser : roots) {
+			ids[i] = mser.ID;
+		}
+		return Arrays.toString(ids);
+	}
+	
 	
 	public String toString() {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();

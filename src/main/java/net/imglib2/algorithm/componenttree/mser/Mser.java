@@ -91,6 +91,8 @@ public final class Mser<T extends Type<T>> implements Component<T, Mser<T>> {
 	 * Covariance of the pixel positions in the region.
 	 */
 	private final double[] cov;
+	
+	public final int ID;
 
 	Mser(final MserEvaluationNode<T> node) {
 		children = new ArrayList<Mser<T>>();
@@ -100,6 +102,7 @@ public final class Mser<T extends Type<T>> implements Component<T, Mser<T>> {
 		pixelList = node.pixelList;
 		mean = node.mean;
 		cov = node.cov;
+		ID = node.ID;
 	}
 
 	/**
@@ -186,7 +189,7 @@ public final class Mser<T extends Type<T>> implements Component<T, Mser<T>> {
 	// wilbur:
 	
 	public void printToStream(PrintStream strm) {
-		strm.format("%s: level=%s, size=%d children=%d", this.getClass().getSimpleName(), value.toString(), size(),
+		strm.format("%s: id=%d, level=%s, size=%d children=%d", this.getClass().getSimpleName(), ID, value.toString(), size(),
 				children.size());
 	}
 	

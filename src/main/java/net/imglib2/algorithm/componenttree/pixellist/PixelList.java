@@ -36,6 +36,7 @@ package net.imglib2.algorithm.componenttree.pixellist;
 
 import java.util.Iterator;
 
+import ij.IJ;
 import net.imglib2.Localizable;
 import net.imglib2.Point;
 import net.imglib2.RandomAccess;
@@ -119,6 +120,8 @@ public final class PixelList implements Iterable<Localizable> {
 	 * Append another {@link PixelList} to this one.
 	 */
 	public void merge(final PixelList l) {
+		// called by MserPartialComponent.merge()
+		IJ.log(String.format("   *** PixelList.merge(): %d", l.size));
 		if (this.size == 0) {
 			headIndex = l.headIndex;
 			for (int i = 0; i < tailPos.length; ++i)

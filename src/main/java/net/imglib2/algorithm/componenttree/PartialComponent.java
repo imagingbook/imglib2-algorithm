@@ -52,36 +52,31 @@ import net.imglib2.Localizable;
  * create new components and emits completed components to a
  * {@link PartialComponent.Handler}.
  * 
- * @param <T>
- *            value type of the input image.
+ * @param <T> value type of the input image.
  * 
  * @author Tobias Pietzsch
  */
-public interface PartialComponent< T, C extends PartialComponent< T, C > >
-{
+public interface PartialComponent<T, C extends PartialComponent<T, C>> {
+
 	/**
 	 * Create new components.
 	 * 
-	 * @param <T>
-	 *            value type of the input image.
-	 * @param <C>
-	 *            component type.
+	 * @param <T> value type of the input image.
+	 * @param <C> component type.
 	 */
-	public interface Generator< T, C extends PartialComponent< T, C > >
-	{
+	public interface Generator<T, C extends PartialComponent<T, C>> {
 		/**
 		 * Create a new empty component with the given value (e.g., grey-level).
 		 * 
-		 * @param value
-		 *            value of the component
+		 * @param value value of the component
 		 * @return new component
 		 */
-		public C createComponent( final T value );
+		public C createComponent(final T value);
 
 		/**
-		 * Create a component with a value (e.g., grey-level) greater than any
-		 * occurring in the input for the {@link BuildComponentTree}. This is
-		 * used as a terminator element on the component stack.
+		 * Create a component with a value (e.g., grey-level) greater than any occurring
+		 * in the input for the {@link BuildComponentTree}. This is used as a terminator
+		 * element on the component stack.
 		 * 
 		 * @return new component
 		 */
@@ -89,33 +84,28 @@ public interface PartialComponent< T, C extends PartialComponent< T, C > >
 	}
 
 	/**
-	 * Handle completed components that are output by {@link BuildComponentTree}
-	 * .
+	 * Handle completed components that are output by {@link BuildComponentTree} .
 	 * 
-	 * @param <C>
-	 *            component type.
+	 * @param <C> component type.
 	 */
-	public interface Handler< C >
-	{
+	public interface Handler<C> {
 		/**
-		 * {@link BuildComponentTree} calls this for every completed component.
-		 * NOTE THAT THE COMPONENT IS RE-USED BY {@link BuildComponentTree}!
-		 * That is, after calling emit() new pixels may be added, etc. Do not
-		 * store the component object but rather copy the relevant data!
+		 * {@link BuildComponentTree} calls this for every completed component. NOTE
+		 * THAT THE COMPONENT IS RE-USED BY {@link BuildComponentTree}! That is, after
+		 * calling emit() new pixels may be added, etc. Do not store the component
+		 * object but rather copy the relevant data!
 		 * 
-		 * @param component
-		 *            a completed component
+		 * @param component a completed component
 		 */
-		public void emit( C component );
+		public void emit(C component);
 	}
 
 	/**
 	 * Set the threshold value (e.g., grey-level) for this component.
 	 * 
-	 * @param value
-	 *            the threshold value
+	 * @param value the threshold value
 	 */
-	public abstract void setValue( final T value );
+	public abstract void setValue(final T value);
 
 	/**
 	 * Get the threshold value (e.g., grey-level) for this component.
@@ -127,16 +117,14 @@ public interface PartialComponent< T, C extends PartialComponent< T, C > >
 	/**
 	 * Add a pixel to the set of pixels represented by this component.
 	 * 
-	 * @param position
-	 *            a pixel position
+	 * @param position a pixel position
 	 */
-	public abstract void addPosition( final Localizable position );
+	public abstract void addPosition(final Localizable position);
 
 	/**
 	 * Merge other component (of the same concrete type) into this component.
 	 * 
-	 * @param component
-	 *            the other component
+	 * @param component the other component
 	 */
-	public abstract void merge( final C component );
+	public abstract void merge(final C component);
 }

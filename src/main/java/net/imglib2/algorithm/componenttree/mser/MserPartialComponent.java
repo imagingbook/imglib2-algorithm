@@ -37,6 +37,7 @@ package net.imglib2.algorithm.componenttree.mser;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import ij.IJ;
 import net.imglib2.Localizable;
 import net.imglib2.algorithm.componenttree.PartialComponent;
 import net.imglib2.algorithm.componenttree.pixellist.PixelList;
@@ -54,6 +55,10 @@ import net.imglib2.type.Type;
  * @author Tobias Pietzsch
  */
 public final class MserPartialComponent<T extends Type<T>> implements PartialComponent<T, MserPartialComponent<T>> {
+	
+	static int nextID = 0;	// wilbur
+	public final int ID;
+	
 	/**
 	 * Threshold value of the connected component.
 	 */
@@ -102,6 +107,8 @@ public final class MserPartialComponent<T extends Type<T>> implements PartialCom
 	 *                  to store the {@link #pixelList}.
 	 */
 	MserPartialComponent(final T value, final MserPartialComponentGenerator<T> generator) {
+		ID = nextID++;
+		IJ.log("    %%% creating new MserPartialComponent: level=" + value.toString() + " id=" + ID);
 		pixelList = new PixelList(generator.linkedList.randomAccess(), generator.dimensions);
 		n = generator.dimensions.length;
 		sumPos = new double[n];
@@ -114,6 +121,8 @@ public final class MserPartialComponent<T extends Type<T>> implements PartialCom
 
 	@Override
 	public void addPosition(final Localizable position) {
+		IJ.log(String.format("         MserPartialComponent.addPosition() to %d: %s", 
+				this.ID, Arrays.toString(position.positionAsLongArray())));
 		pixelList.addPosition(position);
 		position.localize(tmp);
 		int k = 0;
@@ -136,6 +145,8 @@ public final class MserPartialComponent<T extends Type<T>> implements PartialCom
 
 	@Override
 	public void merge(final MserPartialComponent<T> component) {
+		IJ.log(String.format("   *** MserPartialComponent.merge(): merging components %s <- %s", 
+				this.getValue().toString() , component.getValue().toString()));
 		pixelList.merge(component.pixelList);
 		for (int i = 0; i < sumPos.length; ++i)
 			sumPos[i] += component.sumPos[i];

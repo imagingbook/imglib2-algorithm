@@ -125,13 +125,16 @@ final class MserEvaluationNode<T extends Type<T>> {
 	 * tree.
 	 */
 	final ArrayList<Mser<T>> mserThisOrChildren;
+	
+	public final int ID;
 
 	MserEvaluationNode(final MserPartialComponent<T> component, final Comparator<T> comparator, final ComputeDelta<T> delta, final MserTree<T> tree) {
-		IJ.log("    -- MserEvaluationNode()");
+		//IJ.log("    -- MserEvaluationNode() " + component.ID);
 		
 		value = component.getValue().copy();
 		pixelList = new PixelList(component.pixelList);
 		size = pixelList.size();
+		ID = component.ID;
 
 		final ArrayList<MserEvaluationNode<T>> children = new ArrayList<MserEvaluationNode<T>>();
 		MserEvaluationNode<T> node = component.getEvaluationNode();
@@ -201,6 +204,7 @@ final class MserEvaluationNode<T extends Type<T>> {
 		n = child.n;
 		mean = child.mean;
 		cov = child.cov;
+		ID = child.ID;
 
 		isScoreValid = computeMserScore(delta, comparator, true);
 //		All our children are non-intermediate, and

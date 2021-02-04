@@ -36,6 +36,7 @@ package net.imglib2.algorithm.componenttree.mser;
 
 import java.util.LinkedList;
 
+import ij.IJ;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.componenttree.PartialComponent;
 import net.imglib2.algorithm.componenttree.pixellist.PixelList;

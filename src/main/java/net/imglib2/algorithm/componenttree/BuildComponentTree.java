@@ -394,7 +394,7 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 
 			// step 5
 			C component = componentStack.peek();
-			component.addPosition(currentPos);
+			component.addPosition(currentPos);		// ad pixel
 
 			// step 6
 			if (boundaryPixels.isEmpty()) {
@@ -424,12 +424,11 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 
 	/**
 	 * This is called whenever the current value is raised.
-	 * 
 	 * @param newLevel
 	 */
 	private void processStack(final T newLevel) {
 		
-		IJ.log((processStackCtr++) + " processStack START newLevel=" + newLevel + " componentStack = " + listComponentStack());
+		IJ.log((processStackCtr++) + " processStack(): newLevel=" + newLevel + " componentStack = " + listComponentStack());
 		if (getIntValue(newLevel) == 0 || getIntValue(newLevel) == 255) {
 			IJ.log("************************************************");
 		}
@@ -438,11 +437,14 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 			// process component on top of stack
 			C component1 = componentStack.pop();
 			
-			componentOutput.emit(component1);
-			IJ.log("   +++ emitting component=" + component1.getValue() + " size=" +
-					((MserPartialComponent< T >)component1).size());
-			IJ.log("   +++ levels=" + levelsToString(component1));
+			IJ.log("   +++ emitting component " + ((MserPartialComponent<T>)component1).ID 
+					+ " level=" + component1.getValue() 
+					+ " size=" + ((MserPartialComponent<T>)component1).size() 
+					+ " levels=" + levelsToString(component1)
+					);
 			//IJ.log("   +++ children = " + childrenToString(component1));
+			
+			componentOutput.emit(component1);
 
 			// get level of second component on stack
 			C component2 = componentStack.peek();
@@ -456,11 +458,11 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 			//if (c < 0) {
 			if (level1 < level2) {
 				component1.setValue(newLevel);
-				componentStack.push(component1);
+				componentStack.push(component1);	// component1 back on the stack
 				done = true;
 			} 
 			else {
-				IJ.log(String.format("   *** merging components %s <- %s", 
+				IJ.log(String.format("   *** processStack(): merging components %s <- %s", 
 						component2.getValue().toString() , component1.getValue().toString()));
 				component2.merge(component1);
 				if (level1 == level2) { //if (c > 0)
@@ -468,7 +470,7 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 				}
 			}
 		}
-		IJ.log("           END  newLevel=" + newLevel + " topStackLevel=" + componentStack.peek().getValue());
+		//IJ.log("           END  newLevel=" + newLevel + " topStackLevel=" + componentStack.peek().getValue());
 	}
 	
 	
@@ -498,18 +500,20 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 	}
 	
 	private String listComponentStack() {
-		int n = componentStack.size();
-		int[] levels = new int[n];
-		int[] sizes = new int[n];
+		int N = componentStack.size();
+		int[] levels = new int[N];
+		int[] sizes = new int[N];
+		int[] ids = new int[N];
 		
 		int i = 0;
 		for (C component : componentStack) {
 			MserPartialComponent< T > mser = (MserPartialComponent< T >) component;
 			levels[i] = getIntValue(mser.getValue());
 			sizes[i] = (int) mser.size();
+			ids[i] = mser.ID;
 			i++;
 		}
-		return "levels="+Arrays.toString(levels) + " sizes="+Arrays.toString(sizes);
+		return "compStack=" + Arrays.toString(ids) + " levels="+Arrays.toString(levels) + " sizes="+Arrays.toString(sizes);
 	}
 	
 	private void validateAllVisited(final RandomAccessibleInterval<T> input) {

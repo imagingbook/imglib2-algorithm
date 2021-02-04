@@ -36,6 +36,7 @@ package net.imglib2.algorithm.componenttree.pixellist;
 
 import java.util.ArrayList;
 
+import ij.IJ;
 import net.imglib2.Localizable;
 import net.imglib2.algorithm.componenttree.PartialComponent;
 import net.imglib2.type.Type;
@@ -86,7 +87,8 @@ final class PixelListPartialComponent<T extends Type<T>> implements PartialCompo
 	}
 
 	@Override
-	public void addPosition(final Localizable position) {
+	public void addPosition(final Localizable position) {	// wilbur: never called!?
+		IJ.log(String.format("         PixelListPartialComponent.addPosition(): %s", position.toString()));
 		pixelList.addPosition(position);
 	}
 
@@ -102,6 +104,8 @@ final class PixelListPartialComponent<T extends Type<T>> implements PartialCompo
 
 	@Override
 	public void merge(final PixelListPartialComponent<T> component) {
+		IJ.log(String.format("   *** PixelListPartialComponent.merge(): merging components %s <- %s", 
+				this.getValue().toString() , component.getValue().toString()));
 		this.pixelList.merge(component.pixelList);
 		this.children.add(component);
 	}
