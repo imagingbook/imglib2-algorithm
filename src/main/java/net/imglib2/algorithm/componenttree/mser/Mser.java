@@ -34,6 +34,8 @@
 
 package net.imglib2.algorithm.componenttree.mser;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -93,7 +95,6 @@ public final class Mser<T extends Type<T>> implements Component<T, Mser<T>> {
 	Mser(final MserEvaluationNode<T> node) {
 		children = new ArrayList<Mser<T>>();
 		parent = null;
-
 		value = node.value;
 		score = node.score;
 		pixelList = node.pixelList;
@@ -180,5 +181,19 @@ public final class Mser<T extends Type<T>> implements Component<T, Mser<T>> {
 	@Override
 	public Mser<T> getParent() {
 		return parent;
+	}
+	
+	// wilbur:
+	
+	public void printToStream(PrintStream strm) {
+		strm.format("%s: level=%s, size=%d children=%d", this.getClass().getSimpleName(), value.toString(), size(),
+				children.size());
+	}
+	
+	public String toString() {
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		PrintStream ps = new PrintStream(os);
+		this.printToStream(ps);
+		return os.toString();
 	}
 }

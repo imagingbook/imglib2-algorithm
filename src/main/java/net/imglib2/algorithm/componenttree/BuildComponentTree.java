@@ -282,6 +282,8 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 	private final PriorityQueue<BoundaryPixel> boundaryPixels;
 	private final ArrayDeque<C> componentStack;
 	private final Comparator<T> comparator;
+	
+	private final RandomAccessibleInterval<T> input;	// wilbur
 
 	/**
 	 * Set up data structures and run the algorithm. Completed components are
@@ -296,6 +298,8 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 			final PartialComponent.Generator<T, C> componentGenerator,
 			final PartialComponent.Handler<C> componentOutput, 
 			final Comparator<T> comparator) {
+		
+		this.input = input;		// wilbur
 
 		reusableBoundaryPixels = new ArrayDeque<BoundaryPixel>();
 		this.componentGenerator = componentGenerator;
@@ -333,11 +337,8 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 	 * 
 	 * @param input the input image.
 	 */
-	private void run(final RandomAccessibleInterval<T> input) {
-		
+	private void run(final RandomAccessibleInterval<T> input) {	
 		System.out.println("**** running ****");
-		
-		
 		final RandomAccess<T> currentPos = input.randomAccess();	// current position
 		final RandomAccess<T> neighborPos = input.randomAccess();	// neighbor position
 		
@@ -436,9 +437,12 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 		while (!done) {
 			// process component on top of stack
 			C component1 = componentStack.pop();
+			
 			componentOutput.emit(component1);
 			IJ.log("   +++ emitting component=" + component1.getValue() + " size=" +
 					((MserPartialComponent< T >)component1).size());
+			IJ.log("   +++ levels=" + levelsToString(component1));
+			//IJ.log("   +++ children = " + childrenToString(component1));
 
 			// get level of second component on stack
 			C component2 = componentStack.peek();
@@ -456,6 +460,8 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 				done = true;
 			} 
 			else {
+				IJ.log(String.format("   *** merging components %s <- %s", 
+						component2.getValue().toString() , component1.getValue().toString()));
 				component2.merge(component1);
 				if (level1 == level2) { //if (c > 0)
 					done = true;
@@ -468,7 +474,12 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 	
 	// ---------------- Wilbur testing -----------------------------------------------
 	
-	// wilbur
+	int getIntValue(T x) {
+		IntegerType<?> it = (IntegerType<?>) x;
+		return it.getInteger();
+		//return new Integer(x.toString());
+	}
+	
 	private void foo(final RandomAccessibleInterval<T> input) {
 		System.out.println("**** foo ****");
 		final RandomAccess<T> current = input.randomAccess();	// current position
@@ -486,7 +497,6 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 		}
 	}
 	
-	// wilbur
 	private String listComponentStack() {
 		int n = componentStack.size();
 		int[] levels = new int[n];
@@ -520,11 +530,31 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 		IJ.log("non-visited positions: " + cnt);
 	}
 	
-	int getIntValue(T x) {
-		IntegerType<?> it = (IntegerType<?>) x;
-		return it.getInteger();
-		//return new Integer(x.toString());
+	private String levelsToString(C component) {
+		MserPartialComponent< T > mser = (MserPartialComponent< T >) component;
+		int[] levels = new int[(int)mser.size()];
+		int i = 0;
+		for (Localizable pos : mser.pixelList) {
+//			int x = pos.getIntPosition(0);
+//			int y = pos.getIntPosition(1);
+			levels[i] = getIntValue(input.getAt(pos));
+			i++;
+		}
+		Arrays.sort(levels);
+		return Arrays.toString(levels);
 	}
+	
+	private String childrenToString(C component) {
+		MserPartialComponent< T > mser = (MserPartialComponent< T >) component;
+		int[] chLevels = new int[mser.children.size()];
+		int i = 0;
+		for (MserPartialComponent< T >  ch : mser.children) {
+			chLevels[i] = getIntValue(ch.getValue());
+		}
+		Arrays.sort(chLevels);
+		return Arrays.toString(chLevels);
+	}
+
 	
 
 }

@@ -37,6 +37,7 @@ package net.imglib2.algorithm.componenttree.mser;
 import java.util.ArrayList;
 import java.util.Comparator;
 
+import ij.IJ;
 import net.imglib2.algorithm.componenttree.pixellist.PixelList;
 import net.imglib2.type.Type;
 
@@ -126,6 +127,8 @@ final class MserEvaluationNode<T extends Type<T>> {
 	final ArrayList<Mser<T>> mserThisOrChildren;
 
 	MserEvaluationNode(final MserPartialComponent<T> component, final Comparator<T> comparator, final ComputeDelta<T> delta, final MserTree<T> tree) {
+		IJ.log("    -- MserEvaluationNode()");
+		
 		value = component.getValue().copy();
 		pixelList = new PixelList(component.pixelList);
 		size = pixelList.size();
@@ -142,24 +145,26 @@ final class MserEvaluationNode<T extends Type<T>> {
 		}
 
 		MserEvaluationNode<T> historyWinner = node;
-		for (final MserPartialComponent<T> c : component.children) {
+		
+		for (final MserPartialComponent<T> child : component.children) {
 			// create intermediate MserEvaluationNode between child and this node.
-			node = new MserEvaluationNode<T>(c.getEvaluationNode(), value, comparator, delta);
-			children.add(node);
-			node.setParent(this);
-			if (c.size() > historySize) {
-				historyWinner = node;
-				historySize = c.size();
+			MserEvaluationNode<T> childnode = new MserEvaluationNode<T>(child.getEvaluationNode(), value, comparator, delta); // child node!
+			IJ.log("          adding Child " + child.getValue() + " -> " + this.value);
+			children.add(childnode);
+			childnode.setParent(this);
+			if (child.size() > historySize) {	// child is larger than this mser
+				historyWinner = childnode;
+				historySize = child.size();
 			}
 		}
-
+		
 		historyChild = historyWinner;
 
 		n = component.n;
 		mean = new double[n];
 		cov = new double[(n * (n + 1)) / 2];
 		
-		for (int i = 0; i < n; ++i) {
+		for (int i = 0; i < n; ++i) {	// for all dimensions
 			mean[i] = component.sumPos[i] / size;
 		}
 		
@@ -189,7 +194,6 @@ final class MserEvaluationNode<T extends Type<T>> {
 	private MserEvaluationNode(final MserEvaluationNode<T> child, final T value, final Comparator<T> comparator,
 			final ComputeDelta<T> delta) {
 		child.setParent(this);
-
 		historyChild = child;
 		size = child.size;
 		pixelList = child.pixelList;

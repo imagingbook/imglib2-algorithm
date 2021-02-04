@@ -35,6 +35,7 @@
 package net.imglib2.algorithm.componenttree.mser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import net.imglib2.Localizable;
 import net.imglib2.algorithm.componenttree.PartialComponent;
@@ -42,19 +43,17 @@ import net.imglib2.algorithm.componenttree.pixellist.PixelList;
 import net.imglib2.type.Type;
 
 /**
- * Implementation of {@link PartialComponent} that stores a list of associated pixels
- * in a {@link PixelList}, maintains running sums over pixel positions to
+ * Implementation of {@link PartialComponent} that stores a list of associated
+ * pixels in a {@link PixelList}, maintains running sums over pixel positions to
  * compute mean and covariance. It keeps track of which components were merged
  * into this since it was last emitted (this is used to establish region size
  * history).
  *
- * @param <T>
- *            value type of the input image.
+ * @param <T> value type of the input image.
  *
  * @author Tobias Pietzsch
  */
-public final class MserPartialComponent< T extends Type< T > > implements PartialComponent< T, MserPartialComponent< T > >
-{
+public final class MserPartialComponent<T extends Type<T>> implements PartialComponent<T, MserPartialComponent<T>> {
 	/**
 	 * Threshold value of the connected component.
 	 */
@@ -63,7 +62,7 @@ public final class MserPartialComponent< T extends Type< T > > implements Partia
 	/**
 	 * Pixels in the component.
 	 */
-	final PixelList pixelList;
+	public final PixelList pixelList;
 
 	/**
 	 * number of dimensions in the image.
@@ -76,96 +75,83 @@ public final class MserPartialComponent< T extends Type< T > > implements Partia
 	final double[] sumPos;
 
 	/**
-	 * sum of independent elements of outer product of position (xx, xy, xz, ..., yy, yz, ..., zz, ...).
+	 * sum of independent elements of outer product of position (xx, xy, xz, ...,
+	 * yy, yz, ..., zz, ...).
 	 */
 	final double[] sumSquPos;
 
 	private final long[] tmp;
 
 	/**
-	 * A list of {@link MserPartialComponent} merged into this one since it
-	 * was last emitted. (For building up MSER evaluation structure.)
+	 * A list of {@link MserPartialComponent} merged into this one since it was last
+	 * emitted. (For building up MSER evaluation structure.)
 	 */
-	ArrayList< MserPartialComponent< T > > children;
+	public final ArrayList<MserPartialComponent<T>> children;
 
 	/**
-	 * The {@link MserEvaluationNode} assigned to this
-	 * {@link MserPartialComponent} when it was last emitted. (For building up
-	 * MSER evaluation structure.)
+	 * The {@link MserEvaluationNode} assigned to this {@link MserPartialComponent}
+	 * when it was last emitted. (For building up MSER evaluation structure.)
 	 */
-	MserEvaluationNode< T > evaluationNode;
+	MserEvaluationNode<T> evaluationNode;
 
 	/**
 	 * Create new empty component.
 	 *
-	 * @param value
-	 *            (initial) threshold value {@see #getValue()}.
-	 * @param generator
-	 *            the {@link MserPartialComponentGenerator#linkedList} is used to store
-	 *            the {@link #pixelList}.
+	 * @param value     (initial) threshold value {@see #getValue()}.
+	 * @param generator the {@link MserPartialComponentGenerator#linkedList} is used
+	 *                  to store the {@link #pixelList}.
 	 */
-	MserPartialComponent( final T value, final MserPartialComponentGenerator< T > generator )
-	{
-		pixelList = new PixelList( generator.linkedList.randomAccess(), generator.dimensions );
+	MserPartialComponent(final T value, final MserPartialComponentGenerator<T> generator) {
+		pixelList = new PixelList(generator.linkedList.randomAccess(), generator.dimensions);
 		n = generator.dimensions.length;
-		sumPos = new double[ n ];
-		sumSquPos = new double[ ( n * (n+1) ) / 2 ];
+		sumPos = new double[n];
+		sumSquPos = new double[(n * (n + 1)) / 2];
 		this.value = value.copy();
-		this.children = new ArrayList< MserPartialComponent< T > >();
+		this.children = new ArrayList<MserPartialComponent<T>>();
 		this.evaluationNode = null;
-		tmp = new long[ n ];
+		tmp = new long[n];
 	}
 
 	@Override
-	public void addPosition( final Localizable position )
-	{
-		pixelList.addPosition( position );
-		position.localize( tmp );
+	public void addPosition(final Localizable position) {
+		pixelList.addPosition(position);
+		position.localize(tmp);
 		int k = 0;
-		for ( int i = 0; i < n; ++i )
-		{
-			sumPos[ i ] += tmp[ i ];
-			for ( int j = i; j < n; ++j )
-				sumSquPos[ k++ ] += tmp[ i ] * tmp[ j ];
+		for (int i = 0; i < n; ++i) {
+			sumPos[i] += tmp[i];
+			for (int j = i; j < n; ++j)
+				sumSquPos[k++] += tmp[i] * tmp[j];
 		}
 	}
 
 	@Override
-	public T getValue()
-	{
+	public T getValue() {
 		return value;
 	}
 
 	@Override
-	public void setValue( final T value )
-	{
-		this.value.set( value );
+	public void setValue(final T value) {
+		this.value.set(value);
 	}
 
 	@Override
-	public void merge( final MserPartialComponent< T > component )
-	{
-		pixelList.merge( component.pixelList );
-		for ( int i = 0; i < sumPos.length; ++i )
-			sumPos[ i ] += component.sumPos[ i ];
-		for ( int i = 0; i < sumSquPos.length; ++i )
-			sumSquPos[ i ] += component.sumSquPos[ i ];
-		children.add( component );
+	public void merge(final MserPartialComponent<T> component) {
+		pixelList.merge(component.pixelList);
+		for (int i = 0; i < sumPos.length; ++i)
+			sumPos[i] += component.sumPos[i];
+		for (int i = 0; i < sumSquPos.length; ++i)
+			sumSquPos[i] += component.sumSquPos[i];
+		children.add(component);
 	}
 
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		String s = "{" + value.toString() + " : ";
 		boolean first = true;
-		for ( final Localizable l : pixelList )
-		{
-			if ( first )
-			{
+		for (final Localizable l : pixelList) {
+			if (first) {
 				first = false;
-			}
-			else
-			{
+			} else {
 				s += ", ";
 			}
 			s += l.toString();
@@ -178,8 +164,7 @@ public final class MserPartialComponent< T extends Type< T > > implements Partia
 	 *
 	 * @return number of pixels in the component.
 	 */
-	public long size()
-	{
+	public long size() {
 		return pixelList.size();
 	}
 
@@ -189,8 +174,7 @@ public final class MserPartialComponent< T extends Type< T > > implements Partia
 	 *
 	 * @return {@link MserEvaluationNode} last emitted from the component.
 	 */
-	MserEvaluationNode< T > getEvaluationNode()
-	{
+	MserEvaluationNode<T> getEvaluationNode() {
 		return evaluationNode;
 	}
 
@@ -198,8 +182,11 @@ public final class MserPartialComponent< T extends Type< T > > implements Partia
 	 * Set the {@link MserEvaluationNode} created from this
 	 * {@link MserPartialComponent} when it is emitted.
 	 */
-	void setEvaluationNode( final MserEvaluationNode< T > node )
-	{
+	void setEvaluationNode(final MserEvaluationNode<T> node) {
 		evaluationNode = node;
 	}
+	
+	// ------------ wilbur -----------------------------------------------
+	
+
 }

@@ -51,12 +51,11 @@ import net.imglib2.util.IntervalIndexer;
  * 
  * @author Tobias Pietzsch
  */
-public final class PixelList implements Iterable< Localizable >
-{
+public final class PixelList implements Iterable<Localizable> {
 	/**
 	 * RandomAccess into the index image to store the linked list.
 	 */
-	private final RandomAccess< LongType > locationsAccess;
+	private final RandomAccess<LongType> locationsAccess;
 
 	/**
 	 * Dimensions of the index image.
@@ -79,22 +78,19 @@ public final class PixelList implements Iterable< Localizable >
 	private long size;
 
 	/**
-	 * @param locationsAccess
-	 *            RandomAccess into the index image to store the linked list.
-	 * @param dimensions
-	 *            Dimensions of the index image.
+	 * @param locationsAccess RandomAccess into the index image to store the linked
+	 *                        list.
+	 * @param dimensions      Dimensions of the index image.
 	 */
-	public PixelList( final RandomAccess< LongType > locationsAccess, final long[] dimensions )
-	{
+	public PixelList(final RandomAccess<LongType> locationsAccess, final long[] dimensions) {
 		this.locationsAccess = locationsAccess;
 		this.dimensions = dimensions;
 		headIndex = 0;
-		tailPos = new long[ dimensions.length ];
+		tailPos = new long[dimensions.length];
 		size = 0;
 	}
 
-	public PixelList( final PixelList l )
-	{
+	public PixelList(final PixelList l) {
 		this.locationsAccess = l.locationsAccess;
 		this.dimensions = l.dimensions;
 		this.headIndex = l.headIndex;
@@ -105,20 +101,16 @@ public final class PixelList implements Iterable< Localizable >
 	/**
 	 * Append a pixel location to the list.
 	 */
-	public void addPosition( final Localizable position )
-	{
-		if ( size == 0 )
-		{
-			position.localize( tailPos );
-			final long i = IntervalIndexer.positionToIndex( tailPos, dimensions );
+	public void addPosition(final Localizable position) {
+		if (size == 0) {
+			position.localize(tailPos);
+			final long i = IntervalIndexer.positionToIndex(tailPos, dimensions);
 			headIndex = i;
-		}
-		else
-		{
-			locationsAccess.setPosition( tailPos );
-			position.localize( tailPos );
-			final long i = IntervalIndexer.positionToIndex( tailPos, dimensions );
-			locationsAccess.get().set( i );
+		} else {
+			locationsAccess.setPosition(tailPos);
+			position.localize(tailPos);
+			final long i = IntervalIndexer.positionToIndex(tailPos, dimensions);
+			locationsAccess.get().set(i);
 		}
 		++size;
 	}
@@ -140,49 +132,41 @@ public final class PixelList implements Iterable< Localizable >
 		size += l.size;
 	}
 
-	public class PixelListIterator implements Iterator< Localizable >
-	{
+	public class PixelListIterator implements Iterator<Localizable> {
 		private long i;
-
 		private long nextIndex;
-
 		private final long[] tmp;
-
 		private final Point pos;
 
-		public PixelListIterator()
-		{
+		public PixelListIterator() {
 			i = 0;
 			nextIndex = headIndex;
-			tmp = new long[ dimensions.length ];
-			pos = new Point( dimensions.length );
+			tmp = new long[dimensions.length];
+			pos = new Point(dimensions.length);
 		}
 
 		@Override
-		public boolean hasNext()
-		{
+		public boolean hasNext() {
 			return i < size;
 		}
 
 		@Override
-		public Localizable next()
-		{
+		public Localizable next() {
 			++i;
-			IntervalIndexer.indexToPosition( nextIndex, dimensions, tmp );
-			pos.setPosition( tmp );
-			locationsAccess.setPosition( tmp );
+			IntervalIndexer.indexToPosition(nextIndex, dimensions, tmp);
+			pos.setPosition(tmp);
+			locationsAccess.setPosition(tmp);
 			nextIndex = locationsAccess.get().get();
 			return pos;
 		}
 
 		@Override
-		public void remove()
-		{}
+		public void remove() {
+		}
 	}
 
 	@Override
-	public Iterator< Localizable > iterator()
-	{
+	public Iterator<Localizable> iterator() {
 		return new PixelListIterator();
 	}
 
@@ -191,16 +175,14 @@ public final class PixelList implements Iterable< Localizable >
 	 * 
 	 * @return number of elements in this list.
 	 */
-	public long size()
-	{
+	public long size() {
 		return size;
 	}
 
 	/**
 	 * empty the list.
 	 */
-	public void clear()
-	{
+	public void clear() {
 		size = 0;
 	}
 }

@@ -34,11 +34,14 @@
 
 package net.imglib2.algorithm.componenttree.mser;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import ij.IJ;
 import net.imglib2.RandomAccess;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.componenttree.BuildComponentTree;
@@ -52,6 +55,7 @@ import net.imglib2.img.cell.CellImgFactory;
 import net.imglib2.type.Type;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.LongType;
+import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.util.Util;
 
 //@formatter:off
@@ -244,11 +248,8 @@ public final class MserTree<T extends Type<T>>
 	}
 
 	private final HashSet<Mser<T>> roots;
-
 	private final ArrayList<Mser<T>> nodes;
-
 	private final Comparator<T> comparator;
-
 	private final ComputeDelta<T> delta;
 
 	/**
@@ -327,6 +328,7 @@ public final class MserTree<T extends Type<T>>
 
 	@Override
 	public void emit(final MserPartialComponent<T> component) {
+		IJ.log("    -- emit() in " + this.getClass().getSimpleName());
 		new MserEvaluationNode<T>(component, comparator, delta, this);
 		component.children.clear();
 	}
@@ -384,4 +386,26 @@ public final class MserTree<T extends Type<T>>
 	public HashSet<Mser<T>> roots() {
 		return roots;
 	}
+	
+	// wilbur added ------------------------------------------------------------------
+	
+	public String toString() {
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		PrintStream ps = new PrintStream(os);
+		this.printToStream(ps);
+		return os.toString();
+	}
+	
+	public void printToStream(PrintStream strm) {
+		strm.println(this.getClass().getSimpleName() + ":");
+		strm.format("   number of regions: %d\n", this.size());
+		int k = 0;
+		for (Mser<T> mser : this) {
+			{
+				strm.println(k + ": " + mser.toString());
+				k++;
+			}
+		}
+	}
+	
 }

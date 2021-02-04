@@ -40,6 +40,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Set;
 
+import ij.IJ;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.algorithm.componenttree.BuildComponentTree;
 import net.imglib2.algorithm.componenttree.ComponentTree;
@@ -156,8 +157,9 @@ public final class PixelListComponentTree<T extends Type<T>> implements Componen
 		nodes = new ArrayList<PixelListComponent<T>>();
 	}
 
-	@Override
+	@Override	// wilbur: this is never called!
 	public void emit(final PixelListPartialComponent<T> partialComponent) {
+		IJ.log("    -- emit() in " + this.getClass().getSimpleName());
 		final PixelListComponent<T> component = new PixelListComponent<T>(partialComponent);
 		root = component;
 		nodes.add(component);
