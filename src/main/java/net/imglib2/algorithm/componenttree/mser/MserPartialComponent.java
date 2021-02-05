@@ -145,14 +145,25 @@ public final class MserPartialComponent<T extends Type<T>> implements PartialCom
 
 	@Override
 	public void merge(final MserPartialComponent<T> component) {
-		IJ.log(String.format("   *** MserPartialComponent.merge(): merging components %s <- %s", 
-				this.getValue().toString() , component.getValue().toString()));
 		pixelList.merge(component.pixelList);
 		for (int i = 0; i < sumPos.length; ++i)
 			sumPos[i] += component.sumPos[i];
 		for (int i = 0; i < sumSquPos.length; ++i)
 			sumSquPos[i] += component.sumSquPos[i];
 		children.add(component);
+		IJ.log(String.format("   *** merging components %d(%s) <- %d(%s)", 
+				this.ID, this.getValue().toString() , component.ID, component.getValue().toString()));
+		IJ.log(String.format("   *** children=%s", listChildIds()));
+	}
+	
+	private String listChildIds() {
+		int[] ids = new int[this.children.size()];
+		int i = 0;
+		for (MserPartialComponent<T> child : children) {
+			ids[i] = child.ID;
+			i++;
+		}
+		return Arrays.toString(ids);
 	}
 
 	@Override

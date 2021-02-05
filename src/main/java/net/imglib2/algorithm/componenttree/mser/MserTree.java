@@ -331,10 +331,9 @@ public final class MserTree<T extends Type<T>>
 
 	@Override
 	public void emit(final MserPartialComponent<T> component) {
-		//IJ.log("    -- MserTree.emit() " + component.ID);
 		new MserEvaluationNode<T>(component, comparator, delta, this);
 		component.children.clear();
-		IJ.log("    -- MserTree.emit(): roots=" + listRootIds());
+		IJ.log("    -- cleared children of component " + component.ID);
 	}
 
 	/**

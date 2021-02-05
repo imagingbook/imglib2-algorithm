@@ -33,6 +33,7 @@ public class MSER_imglib2_WB {
 		// open a file with ImageJ
 		final ImagePlus imp = new Opener().openImage(file.getAbsolutePath());
 		ByteImagePlus<UnsignedByteType> byteImagePlus = new ByteImagePlus<UnsignedByteType>(imp);
+		IJ.log("image = " + imp.getShortTitle());
 
 		// display it via ImageJ
 		//imp.show();
@@ -48,7 +49,6 @@ public class MSER_imglib2_WB {
 		int width = (int) img.dimension(0);
 		int height = (int) img.dimension(1);
 		int size = width * height;
-		IJ.log("size = " + size);
 		
 		int delta = 15;
 		int minSize = (int) (0.001 * size);
@@ -63,8 +63,8 @@ public class MSER_imglib2_WB {
 		// --------------------------------------------------------------------------------------------------------
 		IJ.log("done");
 		
-		ImagePlus imPlus = ImageJFunctions.wrapUnsignedByte(img, file.getName() + "input");
-        ImageProcessor ip = imPlus.getProcessor().convertToColorProcessor();
+//		ImagePlus imPlus = ImageJFunctions.wrapUnsignedByte(img, file.getName() + "input");
+//        ImageProcessor ip = imPlus.getProcessor().convertToColorProcessor();
         
         IJ.log(msertree.toString());
         
@@ -100,7 +100,7 @@ public class MSER_imglib2_WB {
 //			k++;
 //		}
 		
-		new ImagePlus("MSER", ip).show();
+//		new ImagePlus("MSER", ip).show();
 		
 		
 //		Img<UnsignedByteType> img2 = img.factory().create(img);

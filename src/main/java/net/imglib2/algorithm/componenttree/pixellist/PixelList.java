@@ -121,7 +121,7 @@ public final class PixelList implements Iterable<Localizable> {
 	 */
 	public void merge(final PixelList l) {
 		// called by MserPartialComponent.merge()
-		IJ.log(String.format("   *** PixelList.merge(): %d", l.size));
+		// IJ.log(String.format("   *** PixelList.merge(): %d", l.size));
 		if (this.size == 0) {
 			headIndex = l.headIndex;
 			for (int i = 0; i < tailPos.length; ++i)

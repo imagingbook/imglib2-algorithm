@@ -361,6 +361,15 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 
 		// step 3
 		componentStack.push(componentGenerator.createComponent(currentLevel));	// push initial component
+		
+//		// test only
+//		currentPos.setPosition(new int[] {10, 10});
+//		neighborPos.setPosition(currentPos);
+//		while (neighborhood.hasNext()) {
+//			neighborhood.next(currentPos, neighborPos, visitedPos);
+//			IJ.log("pos=" + Arrays.toString(neighborPos.positionAsLongArray()));
+//		}
+		
 
 		// step 4
 		listComponentStack();
@@ -428,10 +437,8 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 	 */
 	private void processStack(final T newLevel) {
 		
-		IJ.log((processStackCtr++) + " processStack(): newLevel=" + newLevel + " componentStack = " + listComponentStack());
-		if (getIntValue(newLevel) == 0 || getIntValue(newLevel) == 255) {
-			IJ.log("************************************************");
-		}
+		IJ.log((processStackCtr++) + " processStack(): newLevel=" + newLevel + " " + listComponentStack());
+	
 		boolean done = false;
 		while (!done) {
 			// process component on top of stack
@@ -462,8 +469,8 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 				done = true;
 			} 
 			else {
-				IJ.log(String.format("   *** processStack(): merging components %s <- %s", 
-						component2.getValue().toString() , component1.getValue().toString()));
+//				IJ.log(String.format("   *** processStack(): merging components %s <- %s", 
+//						component2.getValue().toString() , component1.getValue().toString()));
 				component2.merge(component1);
 				if (level1 == level2) { //if (c > 0)
 					done = true;
@@ -513,7 +520,7 @@ public final class BuildComponentTree<T extends Type<T>, C extends PartialCompon
 			ids[i] = mser.ID;
 			i++;
 		}
-		return "compStack=" + Arrays.toString(ids) + " levels="+Arrays.toString(levels) + " sizes="+Arrays.toString(sizes);
+		return "compStack: ids=" + Arrays.toString(ids) + " levels="+Arrays.toString(levels) + " sizes="+Arrays.toString(sizes);
 	}
 	
 	private void validateAllVisited(final RandomAccessibleInterval<T> input) {

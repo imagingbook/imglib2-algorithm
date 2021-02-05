@@ -152,7 +152,8 @@ final class MserEvaluationNode<T extends Type<T>> {
 		for (final MserPartialComponent<T> child : component.children) {
 			// create intermediate MserEvaluationNode between child and this node.
 			MserEvaluationNode<T> childnode = new MserEvaluationNode<T>(child.getEvaluationNode(), value, comparator, delta); // child node!
-			IJ.log("          adding Child " + child.getValue() + " -> " + this.value);
+			IJ.log(String.format("          adding child %d(%s) -> %d(%s)", child.ID, child.getValue().toString(),
+															this.ID, this.value.toString()));
 			children.add(childnode);
 			childnode.setParent(this);
 			if (child.size() > historySize) {	// child is larger than this mser
