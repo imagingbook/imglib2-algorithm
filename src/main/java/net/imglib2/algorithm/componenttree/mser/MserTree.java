@@ -56,7 +56,6 @@ import net.imglib2.img.cell.CellImgFactory;
 import net.imglib2.type.Type;
 import net.imglib2.type.numeric.RealType;
 import net.imglib2.type.numeric.integer.LongType;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
 import net.imglib2.util.Util;
 
 //@formatter:off
@@ -105,8 +104,7 @@ import net.imglib2.util.Util;
 //@formatter:on
 public final class MserTree<T extends Type<T>>
 		implements ComponentForest<Mser<T>>, Iterable<Mser<T>>, PartialComponent.Handler<MserPartialComponent<T>> {
-	
-	
+
 	/**
 	 * Build a MSER tree from an input image. Calls
 	 * {@link #buildMserTree(RandomAccessibleInterval, RealType, long, long, double, double, ImgFactory, boolean)}
@@ -345,13 +343,16 @@ public final class MserTree<T extends Type<T>>
 	void foundNewMinimum(final MserEvaluationNode<T> node) {
 		if (node.size >= minSize && node.size <= maxSize && node.score <= maxVar) {
 			final Mser<T> mser = new Mser<T>(node);
-			for (final Mser<T> m : node.mserThisOrChildren)
+			for (final Mser<T> m : node.mserThisOrChildren) {
 				mser.children.add(m);
+			}
 			node.mserThisOrChildren.clear();
 			node.mserThisOrChildren.add(mser);
 
-			for (final Mser<T> m : mser.children)
+			// remove all children from tree roots
+			for (final Mser<T> m : mser.children) {
 				roots.remove(m);
+			}
 			roots.add(mser);
 			nodes.add(mser);
 			if (++minimaFoundSinceLastPrune == pruneAfterNMinima) {
@@ -389,9 +390,10 @@ public final class MserTree<T extends Type<T>>
 	public HashSet<Mser<T>> roots() {
 		return roots;
 	}
-	
-	// wilbur added ------------------------------------------------------------------
-	
+
+	// wilbur added
+	// ------------------------------------------------------------------
+
 	public String listRootIds() {
 		int[] ids = new int[roots.size()];
 		int i = 0;
@@ -400,15 +402,14 @@ public final class MserTree<T extends Type<T>>
 		}
 		return Arrays.toString(ids);
 	}
-	
-	
+
 	public String toString() {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		PrintStream ps = new PrintStream(os);
 		this.printToStream(ps);
 		return os.toString();
 	}
-	
+
 	public void printToStream(PrintStream strm) {
 		strm.println(this.getClass().getSimpleName() + ":");
 		strm.format("   number of regions: %d\n", this.size());
@@ -420,5 +421,5 @@ public final class MserTree<T extends Type<T>>
 			}
 		}
 	}
-	
+
 }
