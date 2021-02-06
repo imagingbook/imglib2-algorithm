@@ -27,8 +27,10 @@ public class MSER_imglib2_WB {
 //		File file = new File( "DrosophilaWing.tif" );
 //		File file = new File("D://images/boats-tiny.png");
 //		File file = new File("D://images/boats-tiny-w2.png");
-		File file = new File("D://images/boats-tiny-b.png");
+//		File file = new File("D://images/boats-tiny-b.png");
 //		File file = new File("D://images/boats.png");
+		
+		File file = new File("D://images/blob1.png");
 
 		// open a file with ImageJ
 		final ImagePlus imp = new Opener().openImage(file.getAbsolutePath());

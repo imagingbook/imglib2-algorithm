@@ -331,7 +331,7 @@ public final class MserTree<T extends Type<T>>
 	public void emit(final MserPartialComponent<T> component) {
 		new MserEvaluationNode<T>(component, comparator, delta, this);
 		component.children.clear();
-		IJ.log("    -- cleared children of component " + component.ID);
+		IJ.log("    -- MserTree.emit(): cleared children of component " + component.ID);
 	}
 
 	/**
