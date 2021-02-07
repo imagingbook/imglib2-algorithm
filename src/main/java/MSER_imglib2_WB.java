@@ -1,11 +1,13 @@
 import java.awt.Color;
 import java.io.File;
 import java.io.PrintStream;
+import java.util.Locale;
 
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
 import ij.io.Opener;
+import ij.process.ColorProcessor;
 import ij.process.ImageProcessor;
 import io.scif.img.IO;
 import net.imglib2.algorithm.componenttree.mser.Mser;
@@ -30,7 +32,7 @@ public class MSER_imglib2_WB {
 //		File file = new File("D://images/boats-tiny-b.png");
 //		File file = new File("D://images/boats.png");
 		
-		File file = new File("D://images/blob1.png");
+		File file = new File("D://images/blob3.png");
 
 		// open a file with ImageJ
 		final ImagePlus imp = new Opener().openImage(file.getAbsolutePath());
@@ -70,39 +72,44 @@ public class MSER_imglib2_WB {
         
         IJ.log(msertree.toString());
         
-//        IJ.log("MserTree:");
-//        IJ.log("  number of regions: " + msertree.size());
-//		int k = 0;
-//		for (Mser<UnsignedByteType> mser :  msertree) {
-//			{
+        ColorProcessor cp = imp.getProcessor().convertToColorProcessor();
+        
+        IJ.log("MserTree:");
+        IJ.log("  number of regions: " + msertree.size());
+		int k = 0;
+		for (Mser<UnsignedByteType> mser :  msertree) {
+			{
 //				IJ.log(k + ": " + mser.toString());
-////				double[] mean = mser.mean();
-////				int x = (int) Math.rint(mean[0]);
-////				int y = (int) Math.rint(mean[1]);
-////				int rad = (int) (0.25 * Math.sqrt(mser.size()));
-////				ip.setColor(Color.red);
-////				ip.drawOval(x - rad, y - rad, 2*rad, 2*rad);
-////				//IJ.log(k + ": " + Arrays.toString(mean));
-////				IJ.log(String.format("%d: value=%d size=%d score=%.2f childs=%d", 
-////						k, mser.value().getInteger(), mser.size(), mser.score(), mser.getChildren().size()));
-////				double cov[] = mser.cov();
+				double[] mean = mser.mean();
+				int x = (int) Math.rint(mean[0]);
+				int y = (int) Math.rint(mean[1]);
+				int rad = (int) (0.25 * Math.sqrt(mser.size()));
+				cp.setColor(Color.red);
+				cp.drawOval(x - rad, y - rad, 2*rad, 2*rad);
+
+//				IJ.log(String.format("%d: value=%d size=%d score=%.2f childs=%d", 
+//						k, mser.value().getInteger(), mser.size(), mser.score(), mser.getChildren().size()));
+				
+				IJ.log(String.format(Locale.US, "%d: value=%d size=%d score=%.2f pos=(%.2f, %.2f)", 
+						k, mser.value().getInteger(), mser.size(), mser.score(), mean[0], mean[1]));
+				double cov[] = mser.cov();
+			}
+			
+//			ip.setColor(Color.green);
+//			for (Mser<UnsignedByteType> child : mser.getChildren()) {
+//				double[] mean = mser.mean();
+//				int x = (int) Math.rint(mean[0]);
+//				int y = (int) Math.rint(mean[1]);
+//				int rad = (int) (0.25 * Math.sqrt(mser.size()));
+//				
+//				ip.drawOval(x - rad, y - rad, 2*rad, 2*rad);
+//				IJ.log(String.format("     %d: value=%d size=%d score=%.2f childs=%d", 
+//						k, child.value().getInteger(), child.size(), child.score(), child.getChildren().size()));
 //			}
-//			
-////			ip.setColor(Color.green);
-////			for (Mser<UnsignedByteType> child : mser.getChildren()) {
-////				double[] mean = mser.mean();
-////				int x = (int) Math.rint(mean[0]);
-////				int y = (int) Math.rint(mean[1]);
-////				int rad = (int) (0.25 * Math.sqrt(mser.size()));
-////				
-////				ip.drawOval(x - rad, y - rad, 2*rad, 2*rad);
-////				IJ.log(String.format("     %d: value=%d size=%d score=%.2f childs=%d", 
-////						k, child.value().getInteger(), child.size(), child.score(), child.getChildren().size()));
-////			}
-//			k++;
-//		}
+			k++;
+		}
 		
-//		new ImagePlus("MSER", ip).show();
+		new ImagePlus("MSER", cp).show();
 		
 		
 //		Img<UnsignedByteType> img2 = img.factory().create(img);

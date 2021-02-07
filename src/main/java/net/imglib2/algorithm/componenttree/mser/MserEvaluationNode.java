@@ -129,7 +129,7 @@ final class MserEvaluationNode<T extends Type<T>> {
 	public final int ID;
 
 	MserEvaluationNode(final MserPartialComponent<T> component, final Comparator<T> comparator, final ComputeDelta<T> delta, final MserTree<T> tree) {
-		//IJ.log("    -- MserEvaluationNode() " + component.ID);
+		IJ.log("    -- new MserEvaluationNode() " + component.ID);
 		
 		value = component.getValue().copy();
 		pixelList = new PixelList(component.pixelList);
@@ -157,6 +157,7 @@ final class MserEvaluationNode<T extends Type<T>> {
 			children.add(childnode);
 			childnode.setParent(this);
 			if (child.size() > historySize) {	// child is larger than this mser
+				IJ.log("  &&&&&&&&&&&& it happened! child is larger than this mser!");
 				historyWinner = childnode;
 				historySize = child.size();
 			}
@@ -242,6 +243,7 @@ final class MserEvaluationNode<T extends Type<T>> {
 	 */
 	private boolean computeMserScore(final ComputeDelta<T> delta, final Comparator<T> comparator,
 			final boolean isIntermediate) {
+		IJ.log("      ++++++ computeMserScore " + this.ID);
 		// we are looking for a precursor node with value == (this.value - delta)
 		final T valueMinus = delta.valueMinusDelta(value);
 

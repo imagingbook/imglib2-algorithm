@@ -171,13 +171,22 @@ public final class MserTree<T extends Type<T>>
 			final ImgFactory<LongType> imgFactory, final boolean darkToBright) {
 		final T max = delta.createVariable();
 		max.setReal(darkToBright ? delta.getMaxValue() : delta.getMinValue());
+		
+		IJ.log("1. buildMserTree: new MserPartialComponentGenerator ----------------------------------------");
 		final MserPartialComponentGenerator<T> generator = new MserPartialComponentGenerator<T>(max, input, imgFactory);
+		
 		final Comparator<T> comparator = darkToBright ? new BuildComponentTree.DarkToBright<T>()
 				: new BuildComponentTree.BrightToDark<T>();
 		final ComputeDelta<T> computeDelta = darkToBright ? new ComputeDeltaDarkToBright<T>(delta)
 				: new ComputeDeltaBrightToDark<T>(delta);
+		
+		IJ.log("2. buildMserTree: new MserTree -------------------------------------------------------------");
 		final MserTree<T> tree = new MserTree<T>(comparator, computeDelta, minSize, maxSize, maxVar, minDiversity);
+		
+		IJ.log("3. buildMserTree: BuildComponentTree.buildComponentTree() ----------------------------------");
 		BuildComponentTree.buildComponentTree(input, generator, tree, comparator);
+		
+		IJ.log("4. buildMserTree: tree.pruneDuplicates() ----------------------------------");
 		tree.pruneDuplicates();
 		return tree;
 	}
@@ -222,15 +231,23 @@ public final class MserTree<T extends Type<T>>
 	 * @param comparator   determines ordering of threshold values.
 	 * @return MSER tree of the image.
 	 * @see MserPartialComponentGenerator
+	 * 
+	 * wilbur: not called
 	 */
 	public static <T extends Type<T>> MserTree<T> buildMserTree(final RandomAccessibleInterval<T> input,
 			final ComputeDelta<T> computeDelta, final long minSize, final long maxSize, final double maxVar,
 			final double minDiversity, final ImgFactory<LongType> imgFactory, final T maxValue,
 			final Comparator<T> comparator) {
-		final MserPartialComponentGenerator<T> generator = new MserPartialComponentGenerator<T>(maxValue, input,
-				imgFactory);
+		IJ.log("1. buildMserTree: new MserPartialComponentGenerator ----------------------------------------");
+		final MserPartialComponentGenerator<T> generator = new MserPartialComponentGenerator<T>(maxValue, input, imgFactory);
+		
+		IJ.log("2. buildMserTree: new MserTree -------------------------------------------------------------");
 		final MserTree<T> tree = new MserTree<T>(comparator, computeDelta, minSize, maxSize, maxVar, minDiversity);
+		
+		IJ.log("3. buildMserTree: BuildComponentTree.buildComponentTree() ----------------------------------");
 		BuildComponentTree.buildComponentTree(input, generator, tree, comparator);
+		
+		IJ.log("4. buildMserTree: tree.pruneDuplicates() ----------------------------------");
 		tree.pruneDuplicates();
 		return tree;
 	}
@@ -299,8 +316,11 @@ public final class MserTree<T extends Type<T>>
 	 * Remove from the tree candidates which are too similar to their parent. Let
 	 * <em>A</em>, <em>B</em> be a region and its parent. Then <em>A</em> is
 	 * discarded if |B - A| / |B| <= minDiversity.
+	 * 
+	 * wilbur: Only called once at the end.
 	 */
 	private void pruneDuplicates() {
+		IJ.log("     ++++ pruneDuplicates ");
 		nodes.clear();
 		for (final Mser<T> mser : roots) {
 			pruneChildren(mser);
@@ -309,6 +329,7 @@ public final class MserTree<T extends Type<T>>
 	}
 
 	private void pruneChildren(final Mser<T> mser) {
+		
 		final ArrayList<Mser<T>> validChildren = new ArrayList<Mser<T>>();
 		for (int i = 0; i < mser.children.size(); ++i) {
 			final Mser<T> m = mser.children.get(i);
