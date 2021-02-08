@@ -353,6 +353,7 @@ public final class MserTree<T extends Type<T>>
 		new MserEvaluationNode<T>(component, comparator, delta, this);
 		component.children.clear();
 		IJ.log("    -- MserTree.emit(): cleared children of component " + component.ID);
+		IJ.log("root IDs: " + listRootIds());
 	}
 
 	/**

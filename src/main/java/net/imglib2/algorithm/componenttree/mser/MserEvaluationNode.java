@@ -174,7 +174,7 @@ final class MserEvaluationNode<T extends Type<T>> {
 		}
 		
 		int k = 0;
-		for (int i = 0; i < n; ++i)
+		for (int i = 0; i < n; ++i)	
 			for (int j = i; j < n; ++j) {
 				cov[k] = component.sumSquPos[k] / size - mean[i] * mean[j];
 				++k;
