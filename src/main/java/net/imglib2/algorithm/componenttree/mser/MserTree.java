@@ -329,18 +329,17 @@ public final class MserTree<T extends Type<T>>
 	}
 
 	private void pruneChildren(final Mser<T> mser) {
-		
 		final ArrayList<Mser<T>> validChildren = new ArrayList<Mser<T>>();
 		for (int i = 0; i < mser.children.size(); ++i) {
-			final Mser<T> m = mser.children.get(i);
-			final double div = (mser.size() - m.size()) / (double) mser.size();
+			final Mser<T> child = mser.children.get(i);		// wilbur: changed name
+			final double div = (mser.size() - child.size()) / (double) mser.size();
 			if (div > minDiversity) {
-				validChildren.add(m);
-				pruneChildren(m);
+				validChildren.add(child);
+				pruneChildren(child);
 			} else {
-				mser.children.addAll(m.children);
-				for (final Mser<T> m2 : m.children)
-					m2.parent = mser;
+				mser.children.addAll(child.children);
+				for (final Mser<T> grandchild : child.children) // wilbur: changed name
+					grandchild.parent = mser;
 			}
 		}
 		mser.children.clear();
